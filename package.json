@@ -2,6 +2,22 @@
   "name": "safe-command",
   "version": "0.1.0",
   "description": "A proxy tool to safely restrict commands for AI agents",
+  "author": "safe-command contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shoppingjaws/safe-command.git"
+  },
+  "keywords": [
+    "security",
+    "command",
+    "proxy",
+    "ai",
+    "claude-code",
+    "allowlist",
+    "aws",
+    "cli"
+  ],
   "module": "src/index.ts",
   "type": "module",
   "bin": {
@@ -10,7 +26,9 @@
   "scripts": {
     "dev": "bun run src/index.ts",
     "build": "bun build src/index.ts --compile --outfile safe-command",
-    "test": "bun test"
+    "test": "bun test",
+    "lint": "bunx biome check src/",
+    "lint:fix": "bunx biome check --write src/"
   },
   "dependencies": {
     "js-yaml": "^4.1.0"

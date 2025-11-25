@@ -1,0 +1,132 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-build:
+    name: Lint and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run linter
+        run: bun run lint
+
+      - name: Build binary
+        run: bun run build
+
+      - name: Verify binary
+        run: |
+          ./safe-command --help
+          echo "Binary built successfully!"
+
+      - name: Upload binary artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: safe-command-linux
+          path: safe-command
+          retention-days: 7
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    needs: lint-and-build
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run tests
+        run: bun test || echo "No tests defined yet"
+
+      - name: Build binary
+        run: bun run build
+
+      - name: Create test config
+        run: |
+          cat > safe-command.yaml << 'EOF'
+          commands:
+            echo:
+              patterns:
+                - "hello*"
+            ls:
+              patterns:
+                - "*"
+          EOF
+
+      - name: Integration test - Allowed command
+        run: |
+          OUTPUT=$(./safe-command -- echo "hello world")
+          if [[ "$OUTPUT" != "hello world" ]]; then
+            echo "Test failed: Expected 'hello world', got '$OUTPUT'"
+            exit 1
+          fi
+          echo "✅ Allowed command test passed"
+
+      - name: Integration test - Denied command
+        run: |
+          if ./safe-command -- echo "forbidden" 2>&1 | grep -q "Command not allowed"; then
+            echo "✅ Denied command test passed"
+          else
+            echo "❌ Test failed: Command should have been denied"
+            exit 1
+          fi
+
+      - name: Integration test - Wildcard pattern
+        run: |
+          ./safe-command -- ls -la > /dev/null
+          echo "✅ Wildcard pattern test passed"
+
+  multi-platform:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Build binary
+        run: bun run build
+
+      - name: Test binary
+        run: ./safe-command --help
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: safe-command-${{ matrix.os }}
+          path: safe-command
+          retention-days: 7

@@ -1,0 +1,35 @@
+# Development files
+*.log
+.DS_Store
+node_modules/
+bun.lockb
+
+# Build artifacts
+safe-command
+safe-command.exe
+
+# Test files
+*.test.ts
+tests/
+
+# Configuration
+.vscode/
+.cursor/
+.idea/
+
+# CI/CD
+.github/
+
+# Documentation (keep only essential)
+SPEC.md
+
+# Git
+.git/
+.gitignore
+
+# Project-specific configs
+safe-command.yaml
+test-config.yaml
+
+# Biome cache
+.biome-cache/
