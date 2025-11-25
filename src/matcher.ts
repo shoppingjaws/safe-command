@@ -15,12 +15,12 @@
  * patternToRegex("* describe-*") => /^.*\ describe\-.*$/
  */
 function patternToRegex(pattern: string): RegExp {
-  // Escape special regex characters except '*'
-  const escaped = pattern
-    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
-    .replace(/\*/g, '.*');
+	// Escape special regex characters except '*'
+	const escaped = pattern
+		.replace(/[.+?^${}()|[\]\\]/g, "\\$&")
+		.replace(/\*/g, ".*");
 
-  return new RegExp(`^${escaped}$`);
+	return new RegExp(`^${escaped}$`);
 }
 
 /**
@@ -37,8 +37,8 @@ function patternToRegex(pattern: string): RegExp {
  * matchPattern("* describe-*", "ec2 describe-instances") => true
  */
 export function matchPattern(pattern: string, target: string): boolean {
-  const regex = patternToRegex(pattern);
-  return regex.test(target);
+	const regex = patternToRegex(pattern);
+	return regex.test(target);
 }
 
 /**
@@ -53,5 +53,5 @@ export function matchPattern(pattern: string, target: string): boolean {
  * matchAnyPattern(["s3 ls*", "ec2 describe-*"], "s3 cp") => false
  */
 export function matchAnyPattern(patterns: string[], target: string): boolean {
-  return patterns.some(pattern => matchPattern(pattern, target));
+	return patterns.some((pattern) => matchPattern(pattern, target));
 }

@@ -16,15 +16,15 @@
  * - Exit with the same exit code as the command
  */
 export async function executeCommand(
-  command: string,
-  args: string[]
+	command: string,
+	args: string[],
 ): Promise<void> {
-  const proc = Bun.spawn([command, ...args], {
-    stdout: 'inherit',
-    stderr: 'inherit',
-    stdin: 'inherit',
-  });
+	const proc = Bun.spawn([command, ...args], {
+		stdout: "inherit",
+		stderr: "inherit",
+		stdin: "inherit",
+	});
 
-  const exitCode = await proc.exited;
-  process.exit(exitCode);
+	const exitCode = await proc.exited;
+	process.exit(exitCode);
 }

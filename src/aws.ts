@@ -15,5 +15,5 @@
  * parseAwsCommand(["ec2", "describe-instances", "--region", "us-east-1"]) => "ec2 describe-instances --region us-east-1"
  */
 export function parseAwsCommand(args: string[]): string {
-  return args.join(' ');
+	return args.join(" ");
 }
