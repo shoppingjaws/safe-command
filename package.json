@@ -1,0 +1,25 @@
+{
+  "name": "safe-command",
+  "version": "0.1.0",
+  "description": "A proxy tool to safely restrict commands for AI agents",
+  "module": "src/index.ts",
+  "type": "module",
+  "bin": {
+    "safe-command": "./src/index.ts"
+  },
+  "scripts": {
+    "dev": "bun run src/index.ts",
+    "build": "bun build src/index.ts --compile --outfile safe-command",
+    "test": "bun test"
+  },
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/js-yaml": "^4.0.9"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  }
+}
