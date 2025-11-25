@@ -64,14 +64,14 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - name: Pack package
         run: bun pm pack
 
       - name: Publish to npm
-        run: bunx npm@latest publish ./safe-command-${{ needs.check-version.outputs.version }}.tgz --provenance --access public
+        run: bunx npm@latest publish ./safe-command-${{ needs.check-version.outputs.version }}.tgz
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
