@@ -1,6 +1,6 @@
 {
   "name": "safe-command",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A proxy tool to safely restrict commands for AI agents",
   "author": "safe-command contributors",
   "license": "MIT",
