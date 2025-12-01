@@ -21,12 +21,19 @@ export type SafeCommandConfig = {
 };
 
 /**
+ * Global configuration file path
+ */
+export const GLOBAL_CONFIG_PATH = join(
+	homedir(),
+	".config",
+	"safe-command",
+	"safe-command.yaml",
+);
+
+/**
  * Configuration file search paths (in order of priority)
  */
-const CONFIG_PATHS = [
-	"./safe-command.yaml",
-	join(homedir(), ".config", "safe-command", "safe-command.yaml"),
-];
+const CONFIG_PATHS = ["./safe-command.yaml", GLOBAL_CONFIG_PATH];
 
 /**
  * Find configuration file

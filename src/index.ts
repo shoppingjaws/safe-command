@@ -7,8 +7,9 @@
  */
 
 import { parseAwsCommand } from "./aws";
-import { getCommandConfig, loadConfig } from "./config";
+import { GLOBAL_CONFIG_PATH, getCommandConfig, loadConfig } from "./config";
 import { executeCommand } from "./executor";
+import { initCommand } from "./init";
 import { matchAnyPattern } from "./matcher";
 
 /**
@@ -22,22 +23,33 @@ function printError(message: string): void {
  * Print usage information
  */
 function printUsage(): void {
-	console.log(`Usage: safe-command [options] -- <command> [args...]
+	console.log(`Usage: safe-command [command] [options]
+
+Commands:
+  init           Initialize global configuration file
+                 Options:
+                   --force  Overwrite existing configuration
+
+  --             Execute a command (proxy mode)
+                 Format: safe-command -- <command> [args...]
 
 Options:
   -h, --help     Show this help message
 
 Examples:
+  safe-command init
+  safe-command init --force
   safe-command -- aws s3 ls
   safe-command -- aws ec2 describe-instances
   safe-command -- aws sts get-caller-identity
 
 Configuration:
   Configuration file (safe-command.yaml) should be placed in:
-    - ./safe-command.yaml (current directory)
-    - ~/.config/safe-command/safe-command.yaml (home directory)
+    - ./safe-command.yaml (current directory, higher priority)
+    - ~/.config/safe-command/safe-command.yaml (global configuration)
 
-  See examples/safe-command.yaml for a sample configuration.
+  To create a default global configuration, run:
+    safe-command init
 `);
 }
 
@@ -51,6 +63,18 @@ async function main() {
 	if (args.length === 0 || args.includes("-h") || args.includes("--help")) {
 		printUsage();
 		process.exit(0);
+	}
+
+	// Handle init command
+	if (args[0] === "init") {
+		const force = args.includes("--force");
+		try {
+			initCommand(GLOBAL_CONFIG_PATH, force);
+			process.exit(0);
+		} catch (error) {
+			printError(error instanceof Error ? error.message : String(error));
+			process.exit(1);
+		}
 	}
 
 	// Find "--" delimiter
