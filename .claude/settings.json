@@ -1,0 +1,29 @@
+{
+  "permissions": {
+    "ask": ["Edit(package.json)"]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run lint"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun run lint:fix"
+          }
+        ]
+      }
+    ]
+  }
+}
