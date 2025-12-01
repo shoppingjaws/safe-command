@@ -95,17 +95,17 @@ describe("E2E: Wildcard pattern matching", () => {
       }
     });
 
-    test("should NOT match '* world' pattern with 'hello universe'", async () => {
+    test("should NOT match '* world' pattern with 'hi universe'", async () => {
       const { tempDir, cleanup } = setupFixture("wildcard-config.yaml");
       
       try {
         const result = await runSafeCommand(
-          ["echo", "hello", "universe"],
+          ["echo", "hi", "universe"],
           tempDir,
         );
         
         expect(result.exitCode).toBe(1);
-        expect(result.stderr).toContain("not allowed");
+        expect(result.stderr).toContain("not configured");
       } finally {
         cleanup();
       }
