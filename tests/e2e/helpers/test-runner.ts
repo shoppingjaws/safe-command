@@ -10,21 +10,14 @@ export interface CommandResult {
 /**
  * Execute safe-command with the given arguments
  * @param args Command arguments to pass after '--'
- * @param configPath Path to the config file (optional, uses default if not specified)
+ * @param tempDir Temporary directory containing safe-command.yaml (optional)
  * @returns Result containing exit code, stdout, and stderr
  */
 export async function runSafeCommand(
   args: string[],
-  configPath?: string,
+  tempDir?: string,
 ): Promise<CommandResult> {
   const binaryPath = join(process.cwd(), "safe-command");
-
-  // Set up environment variables
-  const env = { ...process.env };
-  if (configPath) {
-    // Set working directory to where config file is located
-    env.PWD = configPath.includes("/") ? configPath.substring(0, configPath.lastIndexOf("/")) : process.cwd();
-  }
 
   // Build command arguments: safe-command -- <actual command>
   const fullArgs = ["--", ...args];
@@ -32,8 +25,7 @@ export async function runSafeCommand(
   try {
     const proc = spawn({
       cmd: [binaryPath, ...fullArgs],
-      env,
-      cwd: configPath?.includes("/") ? configPath.substring(0, configPath.lastIndexOf("/")) : process.cwd(),
+      cwd: tempDir || process.cwd(),
       stdout: "pipe",
       stderr: "pipe",
       stdin: "ignore",
