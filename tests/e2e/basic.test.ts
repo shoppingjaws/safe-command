@@ -73,7 +73,7 @@ describe("E2E: Basic command execution", () => {
         const result = await runSafeCommand(["rm", "-rf", "/"], tempDir);
         
         expect(result.exitCode).toBe(1);
-        expect(result.stderr).toContain("not allowed");
+        expect(result.stderr).toContain("not configured");
       } finally {
         cleanup();
       }
@@ -86,7 +86,7 @@ describe("E2E: Basic command execution", () => {
         const result = await runSafeCommand(["echo", "hello"], tempDir);
         
         expect(result.exitCode).toBe(1);
-        expect(result.stderr).toContain("not allowed");
+        expect(result.stderr).toContain("not configured");
       } finally {
         cleanup();
       }
@@ -100,7 +100,7 @@ describe("E2E: Basic command execution", () => {
         const result = await runSafeCommand(["cat", "/etc/passwd"], tempDir);
         
         expect(result.exitCode).toBe(1);
-        expect(result.stderr).toContain("not allowed");
+        expect(result.stderr).toContain("not configured");
       } finally {
         cleanup();
       }
