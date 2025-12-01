@@ -105,7 +105,7 @@ describe("E2E: Wildcard pattern matching", () => {
         );
         
         expect(result.exitCode).toBe(1);
-        expect(result.stderr).toContain("not configured");
+        expect(result.stderr).toContain("not allowed");
       } finally {
         cleanup();
       }
