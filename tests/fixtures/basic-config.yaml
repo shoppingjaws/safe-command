@@ -1,0 +1,13 @@
+# Basic test configuration for E2E tests
+commands:
+  echo:
+    patterns:
+      - "*"
+  pwd:
+    patterns:
+      - "*"
+  ls:
+    patterns:
+      - "*"
+      - "-la"
+      - "-l*"
