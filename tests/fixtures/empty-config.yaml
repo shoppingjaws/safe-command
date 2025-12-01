@@ -1,0 +1,2 @@
+# Empty configuration - all commands should be denied
+commands: {}
