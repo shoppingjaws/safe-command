@@ -1,6 +1,6 @@
 {
   "permissions": {
-    "ask": ["Edit(package.json)"]
+    "ask": ["Edit(package.json)", "Edit(.github/workflows/release.yaml)"]
   },
   "hooks": {
     "PostToolUse": [
