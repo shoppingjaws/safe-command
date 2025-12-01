@@ -1,0 +1,13 @@
+# Wildcard pattern test configuration
+commands:
+  echo:
+    patterns:
+      - "hello*"        # Prefix match
+      - "* world"       # Suffix match
+      - "test *"        # Middle match
+  cat:
+    patterns:
+      - "*.txt"         # File extension match
+  ls:
+    patterns:
+      - "-l*"           # Option prefix match
