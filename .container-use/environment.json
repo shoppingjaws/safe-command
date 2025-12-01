@@ -1,0 +1,11 @@
+{
+  "workdir": "/workdir",
+  "base_image": "ubuntu:24.04",
+  "setup_commands": [
+    "apt-get update && apt-get install -y curl git unzip",
+    "curl https://mise.run | sh",
+    "echo 'eval \"$(/root/.local/bin/mise activate bash)\"' >> ~/.bashrc",
+    "cd /workdir && /root/.local/bin/mise install",
+    "cd /workdir && /root/.local/bin/mise exec -- bun install"
+  ]
+}
