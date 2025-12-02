@@ -66,7 +66,7 @@ jobs:
 
       - name: Create test config
         run: |
-          cat > config.yaml << 'EOF'
+          cat > safe-command.yaml << 'EOF'
           commands:
             echo:
               patterns:

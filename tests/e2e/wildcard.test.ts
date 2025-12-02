@@ -149,9 +149,9 @@ describe("E2E: Wildcard pattern matching", () => {
       
       try {
         const result = await runSafeCommand(["ls", "-la"], tempDir);
-
+        
         expect(result.exitCode).toBe(0);
-        expect(result.stdout).toContain("config.yaml");
+        expect(result.stdout).toContain("safe-command.yaml");
       } finally {
         cleanup();
       }
@@ -162,9 +162,9 @@ describe("E2E: Wildcard pattern matching", () => {
       
       try {
         const result = await runSafeCommand(["ls", "-l"], tempDir);
-
+        
         expect(result.exitCode).toBe(0);
-        expect(result.stdout).toContain("config.yaml");
+        expect(result.stdout).toContain("safe-command.yaml");
       } finally {
         cleanup();
       }

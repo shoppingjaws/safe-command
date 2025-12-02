@@ -14,10 +14,10 @@ export function setupFixture(fixtureName: string): {
 } {
   // Create a temporary directory
   const tempDir = mkdtempSync(join(tmpdir(), "safe-command-test-"));
-
-  // Copy fixture file to temp directory as 'config.yaml'
+  
+  // Copy fixture file to temp directory as 'safe-command.yaml'
   const fixtureSource = join(process.cwd(), "tests", "fixtures", fixtureName);
-  const configPath = join(tempDir, "config.yaml");
+  const configPath = join(tempDir, "safe-command.yaml");
   
   try {
     copyFileSync(fixtureSource, configPath);
@@ -54,9 +54,9 @@ export function setupCustomFixture(configContent: string): {
 } {
   // Create a temporary directory
   const tempDir = mkdtempSync(join(tmpdir(), "safe-command-test-"));
-
+  
   // Write config content to temp directory
-  const configPath = join(tempDir, "config.yaml");
+  const configPath = join(tempDir, "safe-command.yaml");
   
   try {
     Bun.write(configPath, configContent);
