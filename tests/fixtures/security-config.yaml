@@ -1,0 +1,20 @@
+commands:
+  echo:
+    patterns:
+      - "safe*"
+      - "hello"
+
+  cat:
+    patterns:
+      - "test.txt"
+      - "safe/*.txt"
+
+  ls:
+    patterns:
+      - ""
+      - "-l"
+      - "-la"
+
+  pwd:
+    patterns:
+      - ""
