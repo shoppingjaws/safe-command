@@ -20,6 +20,7 @@ AI coding assistants are powerful, but giving them unrestricted command executio
 - ✅ **Simple configuration**: Easy-to-read YAML files
 - ✅ **Zero runtime overhead**: Compiled to a single binary
 - ✅ **Transparent**: Preserves stdout/stderr and exit codes
+- ✅ **Dry-run mode**: Test commands without executing them
 
 ## 🚀 Quick Start
 
@@ -59,6 +60,10 @@ commands:
 # Allowed command ✅
 ./safe-command -- aws s3 ls
 
+# Test with dry-run ✅
+./safe-command --dry-run -- aws s3 ls
+# Output: [DRY RUN] Would execute: aws s3 ls
+
 # Blocked command ❌
 ./safe-command -- aws s3 rm s3://bucket/file.txt
 # Error: Command not allowed: aws s3 rm s3://bucket/file.txt
@@ -72,6 +77,11 @@ commands:
 safe-command [options] -- <command> [args...]
 ```
 
+### Options
+
+- `--dry-run`: Show what command would be executed without running it
+- `-h, --help`: Show help message
+
 ### Examples
 
 ```bash
@@ -80,9 +90,33 @@ safe-command [options] -- <command> [args...]
 ./safe-command -- aws ec2 describe-instances --region us-east-1
 ./safe-command -- aws sts get-caller-identity
 
+# Dry-run mode (test without executing)
+./safe-command --dry-run -- aws s3 ls
+# Output: [DRY RUN] Would execute: aws s3 ls
+
 # Other commands (configure in YAML)
 ./safe-command -- kubectl get pods
 ./safe-command -- terraform plan
+```
+
+### Dry-Run Mode
+
+Use the `--dry-run` flag to test commands without actually executing them. This is useful for:
+
+- **Testing configuration patterns**: Verify if a command would be allowed or blocked
+- **Debugging**: See what command would be executed
+- **Safe testing**: Test potentially dangerous commands without risk
+- **Configuration development**: Iterate on patterns without side effects
+
+```bash
+# Test if a command is allowed
+./safe-command --dry-run -- aws s3 rm s3://bucket/file.txt
+
+# If the command is blocked, you'll see:
+# Error: Command not allowed: aws s3 rm s3://bucket/file.txt
+
+# If the command is allowed, you'll see:
+# [DRY RUN] Would execute: aws s3 rm s3://bucket/file.txt
 ```
 
 ### Configuration
@@ -173,7 +207,7 @@ safe-command/
 │   ├── config.ts       # Configuration file loader
 │   ├── matcher.ts      # Pattern matching logic
 │   ├── executor.ts     # Command execution
-│   └── aws.ts          # AWS-specific logic
+│   └── init.ts         # Init command
 ├── examples/
 │   └── config.yaml     # Example configuration
 ├── SPEC.md             # Technical specification
@@ -212,6 +246,18 @@ Keep sensitive configurations in project-specific `./config.yaml` files, not glo
 ### 4. Review Patterns Regularly
 
 Audit your allowlist patterns periodically to ensure they still match your security requirements.
+
+### 5. Use Dry-Run for Testing
+
+Always test new patterns with `--dry-run` before executing:
+
+```bash
+# Test the pattern first
+./safe-command --dry-run -- aws s3 cp file.txt s3://bucket/
+
+# If allowed and safe, run for real
+./safe-command -- aws s3 cp file.txt s3://bucket/
+```
 
 ## 🤝 Use with AI Agents
 
