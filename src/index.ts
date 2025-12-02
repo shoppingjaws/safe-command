@@ -30,15 +30,17 @@ Commands:
                    --force  Overwrite existing configuration
 
   --             Execute a command (proxy mode)
-                 Format: safe-command -- <command> [args...]
+                 Format: safe-command [options] -- <command> [args...]
 
 Options:
   -h, --help     Show this help message
+  --dry-run      Show what command would be executed without running it
 
 Examples:
   safe-command init
   safe-command init --force
   safe-command -- aws s3 ls
+  safe-command --dry-run -- aws s3 ls
   safe-command -- kubectl get pods
   safe-command -- docker ps
   safe-command -- git status
@@ -87,8 +89,11 @@ async function main() {
 	}
 
 	// Parse options and command
-	const _options = args.slice(0, delimiterIndex);
+	const options = args.slice(0, delimiterIndex);
 	const commandParts = args.slice(delimiterIndex + 1);
+
+	// Check for dry-run option
+	const dryRun = options.includes("--dry-run");
 
 	if (commandParts.length === 0) {
 		printError('No command specified after "--"');
@@ -143,7 +148,7 @@ async function main() {
 	}
 
 	// Execute command
-	await executeCommand(command, commandArgs);
+	await executeCommand(command, commandArgs, dryRun);
 }
 
 // Run main function
