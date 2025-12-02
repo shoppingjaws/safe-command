@@ -47,6 +47,45 @@ export async function runSafeCommand(
 }
 
 /**
+ * Execute safe-command with direct arguments (for subcommands like 'init')
+ * @param args Command arguments (e.g., ['init', '--force'])
+ * @param tempDir Temporary directory (optional)
+ * @param env Environment variables (optional)
+ * @returns Result containing exit code, stdout, and stderr
+ */
+export async function runSafeCommandDirect(
+  args: string[],
+  tempDir?: string,
+  env?: Record<string, string>,
+): Promise<CommandResult> {
+  const binaryPath = join(process.cwd(), "safe-command");
+
+  try {
+    const proc = spawn({
+      cmd: [binaryPath, ...args],
+      cwd: tempDir || process.cwd(),
+      stdout: "pipe",
+      stderr: "pipe",
+      stdin: "ignore",
+      env: { ...process.env, ...env },
+    });
+
+    const stdout = await new Response(proc.stdout).text();
+    const stderr = await new Response(proc.stderr).text();
+    const exitCode = await proc.exited;
+
+    return {
+      exitCode,
+      stdout: stdout.trim(),
+      stderr: stderr.trim(),
+    };
+  } catch (error) {
+    // If the binary doesn't exist or can't be executed
+    throw new Error(`Failed to execute safe-command: ${error}`);
+  }
+}
+
+/**
  * Build the safe-command binary before running tests
  * Should be called once before all tests
  */
