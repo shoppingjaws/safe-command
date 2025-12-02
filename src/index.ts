@@ -6,7 +6,6 @@
  * A proxy tool to safely restrict commands for AI agents.
  */
 
-import { parseAwsCommand } from "./aws";
 import { GLOBAL_CONFIG_PATH, getCommandConfig, loadConfig } from "./config";
 import { executeCommand } from "./executor";
 import { initCommand } from "./init";
@@ -40,8 +39,9 @@ Examples:
   safe-command init
   safe-command init --force
   safe-command -- aws s3 ls
-  safe-command -- aws ec2 describe-instances
-  safe-command -- aws sts get-caller-identity
+  safe-command -- kubectl get pods
+  safe-command -- docker ps
+  safe-command -- git status
 
 Configuration:
   Configuration file (config.yaml) should be placed in:
@@ -82,7 +82,7 @@ async function main() {
 	if (delimiterIndex === -1) {
 		printError('Missing "--" delimiter');
 		console.error("\nUsage: safe-command [options] -- <command> [args...]");
-		console.error("Example: safe-command -- aws s3 ls\n");
+		console.error("Example: safe-command -- kubectl get pods\n");
 		process.exit(1);
 	}
 
@@ -93,7 +93,7 @@ async function main() {
 	if (commandParts.length === 0) {
 		printError('No command specified after "--"');
 		console.error("\nUsage: safe-command [options] -- <command> [args...]");
-		console.error("Example: safe-command -- aws s3 ls\n");
+		console.error("Example: safe-command -- kubectl get pods\n");
 		process.exit(1);
 	}
 
@@ -123,14 +123,8 @@ async function main() {
 		process.exit(1);
 	}
 
-	// Parse command based on type
-	let commandString: string;
-	if (command === "aws") {
-		commandString = parseAwsCommand(commandArgs);
-	} else {
-		// Generic: just join arguments
-		commandString = commandArgs.join(" ");
-	}
+	// Parse command arguments
+	const commandString = commandArgs.join(" ");
 
 	// Check if command is allowed
 	const allowed = matchAnyPattern(commandConfig.patterns, commandString);
