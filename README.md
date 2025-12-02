@@ -40,7 +40,7 @@ bun run build
 
 ### 2. Create Configuration
 
-Create `config.yaml` in your project root:
+Create `safe-command.yaml` in your project root:
 
 ```yaml
 commands:
@@ -123,8 +123,8 @@ Use the `--dry-run` flag to test commands without actually executing them. This 
 
 Configuration files are searched in the following order:
 
-1. `./config.yaml` (project-specific)
-2. `~/.config/safe-command/config.yaml` (global)
+1. `./safe-command.yaml` (project-specific)
+2. `~/.config/safe-command/safe-command.yaml` (global)
 
 #### Configuration Example
 
@@ -209,7 +209,7 @@ safe-command/
 │   ├── executor.ts     # Command execution
 │   └── init.ts         # Init command
 ├── examples/
-│   └── config.yaml     # Example configuration
+│   └── safe-command.yaml  # Example configuration
 ├── SPEC.md             # Technical specification
 └── README.md
 ```
@@ -241,7 +241,7 @@ patterns:
 
 ### 3. Use Project-Specific Configs
 
-Keep sensitive configurations in project-specific `./config.yaml` files, not global configs.
+Keep sensitive configurations in project-specific `./safe-command.yaml` files, not global configs.
 
 ### 4. Review Patterns Regularly
 
@@ -322,7 +322,7 @@ Found a bug? Have a feature request? Please [open an issue](https://github.com/y
 ## 📖 Documentation
 
 - [SPEC.md](SPEC.md) - Technical specification and architecture
-- [examples/config.yaml](examples/config.yaml) - Configuration examples
+- [examples/safe-command.yaml](examples/safe-command.yaml) - Configuration examples
 
 ## 🌟 Acknowledgments
 

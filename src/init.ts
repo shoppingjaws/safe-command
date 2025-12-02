@@ -1,7 +1,7 @@
 /**
  * Initialize global configuration
  *
- * Creates a default config.yaml configuration file in the user's home directory.
+ * Creates a default safe-command.yaml configuration file in the user's home directory.
  */
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
@@ -9,7 +9,7 @@ import { dirname } from "node:path";
 
 /**
  * Default configuration template
- * Based on examples/config.yaml
+ * Based on examples/safe-command.yaml
  */
 const DEFAULT_CONFIG = `# safe-command Configuration Example
 #
@@ -17,8 +17,8 @@ const DEFAULT_CONFIG = `# safe-command Configuration Example
 # By default, ALL commands are DENIED unless explicitly allowed here.
 #
 # Copy this file to:
-#   - ./config.yaml (project root, recommended)
-#   - ~/.config/safe-command/config.yaml (global)
+#   - ./safe-command.yaml (project root, recommended)
+#   - ~/.config/safe-command/safe-command.yaml (global)
 
 commands:
   # AWS CLI command patterns

@@ -28,7 +28,7 @@ SPEC.md
 .gitignore
 
 # Project-specific configs
-config.yaml
+safe-command.yaml
 test-config.yaml
 
 # Biome cache
