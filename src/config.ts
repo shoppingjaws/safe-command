@@ -1,7 +1,7 @@
 /**
  * Configuration file loader
  *
- * Loads and validates safe-command.yaml configuration file.
+ * Loads and validates config.yaml configuration file.
  */
 
 import { existsSync, readFileSync } from "node:fs";
@@ -27,13 +27,13 @@ export const GLOBAL_CONFIG_PATH = join(
 	homedir(),
 	".config",
 	"safe-command",
-	"safe-command.yaml",
+	"config.yaml",
 );
 
 /**
  * Configuration file search paths (in order of priority)
  */
-const CONFIG_PATHS = ["./safe-command.yaml", GLOBAL_CONFIG_PATH];
+const CONFIG_PATHS = ["./config.yaml", GLOBAL_CONFIG_PATH];
 
 /**
  * Find configuration file

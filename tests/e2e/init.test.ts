@@ -23,7 +23,7 @@ describe("E2E: Init command", () => {
 		mkdirSync(testHomeDir, { recursive: true });
 
 		// Calculate config path
-		testConfigPath = join(testHomeDir, ".config", "safe-command", "safe-command.yaml");
+		testConfigPath = join(testHomeDir, ".config", "safe-command", "config.yaml");
 	}
 
 	// Clean up after each test
@@ -82,7 +82,7 @@ describe("E2E: Init command", () => {
 
 			expect(result.exitCode).toBe(0);
 			expect(result.stdout).toContain("Configuration file created:");
-			expect(result.stdout).toContain(".config/safe-command/safe-command.yaml");
+			expect(result.stdout).toContain(".config/safe-command/config.yaml");
 		});
 	});
 

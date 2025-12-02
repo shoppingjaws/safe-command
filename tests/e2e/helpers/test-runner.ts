@@ -10,7 +10,7 @@ export interface CommandResult {
 /**
  * Execute safe-command with the given arguments
  * @param args Command arguments to pass after '--'
- * @param tempDir Temporary directory containing safe-command.yaml (optional)
+ * @param tempDir Temporary directory containing config.yaml (optional)
  * @returns Result containing exit code, stdout, and stderr
  */
 export async function runSafeCommand(

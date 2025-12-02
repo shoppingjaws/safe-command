@@ -44,9 +44,9 @@ Examples:
   safe-command -- aws sts get-caller-identity
 
 Configuration:
-  Configuration file (safe-command.yaml) should be placed in:
-    - ./safe-command.yaml (current directory, higher priority)
-    - ~/.config/safe-command/safe-command.yaml (global configuration)
+  Configuration file (config.yaml) should be placed in:
+    - ./config.yaml (current directory, higher priority)
+    - ~/.config/safe-command/config.yaml (global configuration)
 
   To create a default global configuration, run:
     safe-command init
@@ -112,9 +112,7 @@ async function main() {
 	const commandConfig = getCommandConfig(config, command);
 	if (!commandConfig) {
 		printError(`Command "${command}" is not configured`);
-		console.error(
-			"\nNo configuration found for this command in safe-command.yaml",
-		);
+		console.error("\nNo configuration found for this command in config.yaml");
 		console.error(
 			`\nTo allow "${command}" commands, add a configuration like:`,
 		);
@@ -139,7 +137,7 @@ async function main() {
 
 	if (!allowed) {
 		printError(`Command not allowed: ${command} ${commandString}`);
-		console.error("No matching pattern found in safe-command.yaml");
+		console.error("No matching pattern found in config.yaml");
 		console.error("\nTo allow this command, add a pattern like:");
 		console.error(`  commands:`);
 		console.error(`    ${command}:`);

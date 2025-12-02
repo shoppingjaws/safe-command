@@ -45,7 +45,7 @@ describe("E2E: Basic command execution", () => {
         
         expect(result.exitCode).toBe(0);
         // Should list the config file
-        expect(result.stdout).toContain("safe-command.yaml");
+        expect(result.stdout).toContain("config.yaml");
       } finally {
         cleanup();
       }
@@ -56,9 +56,9 @@ describe("E2E: Basic command execution", () => {
       
       try {
         const result = await runSafeCommand(["ls", "-la"], tempDir);
-        
+
         expect(result.exitCode).toBe(0);
-        expect(result.stdout).toContain("safe-command.yaml");
+        expect(result.stdout).toContain("config.yaml");
       } finally {
         cleanup();
       }

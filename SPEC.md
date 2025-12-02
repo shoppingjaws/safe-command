@@ -39,7 +39,7 @@ Phase 1では、以下の機能に集中します：
 │             ▼              │
 │  ┌──────────────────────┐  │
 │  │ 2. Load Config       │  │
-│  │    (safe-command.yaml)│  │
+│  │    (config.yaml)│  │
 │  └──────────┬───────────┘  │
 │             ▼              │
 │  ┌──────────────────────┐  │
@@ -73,7 +73,7 @@ safe-commandの設定ファイルは、以下の原則に基づいて設計さ�
 
 ### ファイル名
 
-`safe-command.yaml` (プロジェクトルートまたは`~/.config/safe-command/safe-command.yaml`)
+`config.yaml` (プロジェクトルートまたは`~/.config/safe-command/config.yaml`)
 
 ### フォーマット
 
@@ -156,7 +156,7 @@ $ safe-command -- aws s3 ls
 ```bash
 $ safe-command -- aws s3 rm s3://my-bucket/file.txt
 Error: Command not allowed: aws s3 rm s3://my-bucket/file.txt
-No matching pattern found in safe-command.yaml
+No matching pattern found in config.yaml
 ```
 
 ## パターンマッチング仕様
@@ -218,7 +218,7 @@ safe-command/
 │   ├── executor.ts     # コマンド実行
 │   └── aws.ts          # AWS固有のロジック・パターン定義
 ├── examples/
-│   └── safe-command.yaml  # 設定ファイルの例
+│   └── config.yaml  # 設定ファイルの例
 ├── tests/
 │   ├── matcher.test.ts
 │   ├── aws.test.ts
@@ -339,8 +339,8 @@ bun init
 
 ### 2. 設定ファイル読み込み
 
-1. `./safe-command.yaml`を探す
-2. なければ`~/.config/safe-command/safe-command.yaml`を探す
+1. `./config.yaml`を探す
+2. なければ`~/.config/safe-command/config.yaml`を探す
 3. どちらもなければエラー
 
 ### 3. パターンマッチング
@@ -383,8 +383,8 @@ async function executeCommand(command: string, args: string[]): Promise<void> {
 ```
 Error: Configuration file not found
 Searched locations:
-  - ./safe-command.yaml
-  - ~/.config/safe-command/safe-command.yaml
+  - ./config.yaml
+  - ~/.config/safe-command/config.yaml
 
 Please create a configuration file. See examples/ for sample configuration.
 ```
@@ -393,7 +393,7 @@ Please create a configuration file. See examples/ for sample configuration.
 
 ```
 Error: Command not allowed: aws s3 rm s3://my-bucket/file.txt
-No matching pattern found in safe-command.yaml
+No matching pattern found in config.yaml
 
 To allow this command, add a pattern like:
   commands:
@@ -413,7 +413,7 @@ Error: command not found: aws
 ### YAML構文エラー
 
 ```
-Error: Failed to parse safe-command.yaml
+Error: Failed to parse config.yaml
 Syntax error at line 5: unexpected token
 
 Please check your YAML syntax.
@@ -495,7 +495,7 @@ commands:
 ```bash
 safe-command -- aws s3 rm s3://bucket/file.txt
 # Command not allowed: aws s3 rm s3://bucket/file.txt
-# Do you want to add this pattern to safe-command.yaml? [y/N]
+# Do you want to add this pattern to config.yaml? [y/N]
 ```
 
 ## まとめ
