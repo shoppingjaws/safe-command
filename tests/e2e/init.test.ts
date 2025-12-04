@@ -1,11 +1,8 @@
-import { describe, test, expect, beforeAll, afterEach } from "bun:test";
-import {
-	runSafeCommandDirect,
-	buildSafeCommand,
-} from "./helpers/test-runner";
-import { existsSync, mkdirSync, rmSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { afterEach, beforeAll, describe, expect, test } from "bun:test";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { buildSafeCommand, runSafeCommandDirect } from "./helpers/test-runner";
 
 describe("E2E: Init command", () => {
 	let testHomeDir: string;
@@ -23,7 +20,12 @@ describe("E2E: Init command", () => {
 		mkdirSync(testHomeDir, { recursive: true });
 
 		// Calculate config path
-		testConfigPath = join(testHomeDir, ".config", "safe-command", "safe-command.yaml");
+		testConfigPath = join(
+			testHomeDir,
+			".config",
+			"safe-command",
+			"safe-command.yaml",
+		);
 	}
 
 	// Clean up after each test
@@ -37,11 +39,9 @@ describe("E2E: Init command", () => {
 		test("should create global configuration file", async () => {
 			setupTestHome();
 
-			const result = await runSafeCommandDirect(
-				["init"],
-				testHomeDir,
-				{ HOME: testHomeDir },
-			);
+			const result = await runSafeCommandDirect(["init"], testHomeDir, {
+				HOME: testHomeDir,
+			});
 
 			expect(result.exitCode).toBe(0);
 			expect(result.stdout).toContain("initialized successfully");
@@ -60,11 +60,9 @@ describe("E2E: Init command", () => {
 			const configDir = join(testHomeDir, ".config", "safe-command");
 			expect(existsSync(configDir)).toBe(false);
 
-			const result = await runSafeCommandDirect(
-				["init"],
-				testHomeDir,
-				{ HOME: testHomeDir },
-			);
+			const result = await runSafeCommandDirect(["init"], testHomeDir, {
+				HOME: testHomeDir,
+			});
 
 			expect(result.exitCode).toBe(0);
 			expect(existsSync(configDir)).toBe(true);
@@ -74,11 +72,9 @@ describe("E2E: Init command", () => {
 		test("should display success message", async () => {
 			setupTestHome();
 
-			const result = await runSafeCommandDirect(
-				["init"],
-				testHomeDir,
-				{ HOME: testHomeDir },
-			);
+			const result = await runSafeCommandDirect(["init"], testHomeDir, {
+				HOME: testHomeDir,
+			});
 
 			expect(result.exitCode).toBe(0);
 			expect(result.stdout).toContain("Configuration file created:");
@@ -94,14 +90,16 @@ describe("E2E: Init command", () => {
 			const configDir = join(testHomeDir, ".config", "safe-command");
 			mkdirSync(configDir, { recursive: true });
 			const existingContent = "# Existing config\ncommands: {}";
-			require("fs").writeFileSync(testConfigPath, existingContent, "utf-8");
+			require("node:fs").writeFileSync(
+				testConfigPath,
+				existingContent,
+				"utf-8",
+			);
 
 			// Try to init again without --force
-			const result = await runSafeCommandDirect(
-				["init"],
-				testHomeDir,
-				{ HOME: testHomeDir },
-			);
+			const result = await runSafeCommandDirect(["init"], testHomeDir, {
+				HOME: testHomeDir,
+			});
 
 			expect(result.exitCode).toBe(1);
 			expect(result.stderr).toContain("already exists");
@@ -119,7 +117,11 @@ describe("E2E: Init command", () => {
 			const configDir = join(testHomeDir, ".config", "safe-command");
 			mkdirSync(configDir, { recursive: true });
 			const existingContent = "# Existing config\ncommands: {}";
-			require("fs").writeFileSync(testConfigPath, existingContent, "utf-8");
+			require("node:fs").writeFileSync(
+				testConfigPath,
+				existingContent,
+				"utf-8",
+			);
 
 			// Try to init again with --force
 			const result = await runSafeCommandDirect(
@@ -142,11 +144,7 @@ describe("E2E: Init command", () => {
 		test("should include AWS read-only patterns", async () => {
 			setupTestHome();
 
-			await runSafeCommandDirect(
-				["init"],
-				testHomeDir,
-				{ HOME: testHomeDir },
-			);
+			await runSafeCommandDirect(["init"], testHomeDir, { HOME: testHomeDir });
 
 			const configContent = readFileSync(testConfigPath, "utf-8");
 			expect(configContent).toContain("* list-*");
@@ -159,31 +157,23 @@ describe("E2E: Init command", () => {
 		test("should have commented-out write operations", async () => {
 			setupTestHome();
 
-			await runSafeCommandDirect(
-				["init"],
-				testHomeDir,
-				{ HOME: testHomeDir },
-			);
+			await runSafeCommandDirect(["init"], testHomeDir, { HOME: testHomeDir });
 
 			const configContent = readFileSync(testConfigPath, "utf-8");
-			expect(configContent).toContain("# - \"s3 cp*\"");
-			expect(configContent).toContain("# - \"ec2 start-instances*\"");
-			expect(configContent).toContain("# - \"lambda invoke*\"");
+			expect(configContent).toContain('# - "s3 cp*"');
+			expect(configContent).toContain('# - "ec2 start-instances*"');
+			expect(configContent).toContain('# - "lambda invoke*"');
 		});
 
 		test("should have commented-out dangerous operations", async () => {
 			setupTestHome();
 
-			await runSafeCommandDirect(
-				["init"],
-				testHomeDir,
-				{ HOME: testHomeDir },
-			);
+			await runSafeCommandDirect(["init"], testHomeDir, { HOME: testHomeDir });
 
 			const configContent = readFileSync(testConfigPath, "utf-8");
-			expect(configContent).toContain("# - \"* delete-*\"");
-			expect(configContent).toContain("# - \"* remove-*\"");
-			expect(configContent).toContain("# - \"* terminate-*\"");
+			expect(configContent).toContain('# - "* delete-*"');
+			expect(configContent).toContain('# - "* remove-*"');
+			expect(configContent).toContain('# - "* terminate-*"');
 		});
 	});
 });

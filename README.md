@@ -58,14 +58,14 @@ commands:
 
 ```bash
 # Allowed command ✅
-./safe-command -- aws s3 ls
+./safe-command exec -- aws s3 ls
 
 # Test with dry-run ✅
-./safe-command --dry-run -- aws s3 ls
+./safe-command exec --dry-run -- aws s3 ls
 # Output: [DRY RUN] Would execute: aws s3 ls
 
 # Blocked command ❌
-./safe-command -- aws s3 rm s3://bucket/file.txt
+./safe-command exec -- aws s3 rm s3://bucket/file.txt
 # Error: Command not allowed: aws s3 rm s3://bucket/file.txt
 ```
 
@@ -74,7 +74,12 @@ commands:
 ### Command Syntax
 
 ```bash
-safe-command [options] -- <command> [args...]
+# Execute commands (only format for AI agents)
+safe-command exec [options] -- <command> [args...]
+
+# Admin commands (human use only)
+safe-command init [--force]     # Initialize configuration
+safe-command approve            # Approve configuration changes
 ```
 
 ### Options
@@ -86,17 +91,17 @@ safe-command [options] -- <command> [args...]
 
 ```bash
 # AWS CLI commands
-./safe-command -- aws s3 ls
-./safe-command -- aws ec2 describe-instances --region us-east-1
-./safe-command -- aws sts get-caller-identity
+./safe-command exec -- aws s3 ls
+./safe-command exec -- aws ec2 describe-instances --region us-east-1
+./safe-command exec -- aws sts get-caller-identity
 
 # Dry-run mode (test without executing)
-./safe-command --dry-run -- aws s3 ls
+./safe-command exec --dry-run -- aws s3 ls
 # Output: [DRY RUN] Would execute: aws s3 ls
 
 # Other commands (configure in YAML)
-./safe-command -- kubectl get pods
-./safe-command -- terraform plan
+./safe-command exec -- kubectl get pods
+./safe-command exec -- terraform plan
 ```
 
 ### Dry-Run Mode
@@ -109,8 +114,8 @@ Use the `--dry-run` flag to test commands without actually executing them. This 
 - **Configuration development**: Iterate on patterns without side effects
 
 ```bash
-# Test if a command is allowed
-./safe-command --dry-run -- aws s3 rm s3://bucket/file.txt
+# Test if a command is allowed (using exec subcommand)
+./safe-command exec --dry-run -- aws s3 rm s3://bucket/file.txt
 
 # If the command is blocked, you'll see:
 # Error: Command not allowed: aws s3 rm s3://bucket/file.txt
@@ -180,7 +185,7 @@ commands:
 bun install
 
 # Run in development mode
-bun run dev -- aws s3 ls
+bun run dev exec -- aws s3 ls
 
 # Run linter
 bunx biome check src/
@@ -253,10 +258,10 @@ Always test new patterns with `--dry-run` before executing:
 
 ```bash
 # Test the pattern first
-./safe-command --dry-run -- aws s3 cp file.txt s3://bucket/
+./safe-command exec --dry-run -- aws s3 cp file.txt s3://bucket/
 
 # If allowed and safe, run for real
-./safe-command -- aws s3 cp file.txt s3://bucket/
+./safe-command exec -- aws s3 cp file.txt s3://bucket/
 ```
 
 ## 🤝 Use with AI Agents
@@ -269,11 +274,43 @@ When using with Claude Code or similar AI coding assistants, safe-command provid
 # Instead of allowing direct AWS commands
 # claude-code: aws s3 rm s3://production-data
 
-# Use safe-command as a proxy
-# claude-code: safe-command -- aws s3 ls s3://production-data
+# Use safe-command exec as a proxy
+# claude-code: safe-command exec -- aws s3 ls s3://production-data
 ```
 
 The AI can only execute commands that match your allowlist patterns.
+
+### ⚠️ CRITICAL: Security Configuration for AI Agents
+
+**ONLY allow `safe-command exec` for AI agents. NEVER allow the bare `safe-command` command.**
+
+❌ **WRONG** - This allows AI to approve config changes:
+```bash
+# Claude Code configuration - DON'T DO THIS
+Bash(safe-command:*)  # Allows 'safe-command approve' - SECURITY RISK!
+```
+
+✅ **CORRECT** - Only allow exec subcommand:
+```bash
+# Claude Code configuration
+Bash(safe-command exec:*)  # Only allows 'safe-command exec --' commands
+```
+
+**Why this matters:**
+- `safe-command approve` updates integrity records, allowing config changes
+- If an AI can run `safe-command approve`, it can bypass security restrictions
+- By only allowing `safe-command exec`, you ensure the AI can only execute commands, not modify security policies
+
+**Example safe configuration in Claude Code's allowed commands:**
+```
+Bash(safe-command exec:*)
+```
+
+This ensures:
+- ✅ AI can run: `safe-command exec -- aws s3 ls`
+- ✅ AI can run: `safe-command exec --dry-run -- aws s3 cp ...`
+- ❌ AI cannot run: `safe-command approve`
+- ❌ AI cannot run: `safe-command init`
 
 ## ⚠️ Important Notes
 
@@ -283,13 +320,11 @@ The AI can only execute commands that match your allowlist patterns.
 
 ```bash
 # ❌ Does NOT work
-bun src/index.ts -- aws s3 ls
-
-# ❌ Does NOT work
-./src/index.ts -- aws s3 ls
+bun src/index.ts exec -- aws s3 ls
+./src/index.ts exec -- aws s3 ls
 
 # ✅ WORKS - Use compiled binary
-./safe-command -- aws s3 ls
+./safe-command exec -- aws s3 ls
 ```
 
 **Solution**: Always use the compiled binary (`bun run build`).

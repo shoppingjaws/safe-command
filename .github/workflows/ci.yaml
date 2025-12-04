@@ -76,9 +76,13 @@ jobs:
                 - "*"
           EOF
 
+      - name: Approve configuration
+        run: |
+          echo "yes" | ./safe-command approve
+
       - name: Integration test - Allowed command
         run: |
-          OUTPUT=$(./safe-command -- echo "hello world")
+          OUTPUT=$(./safe-command exec -- echo "hello world")
           if [[ "$OUTPUT" != "hello world" ]]; then
             echo "Test failed: Expected 'hello world', got '$OUTPUT'"
             exit 1
@@ -87,7 +91,7 @@ jobs:
 
       - name: Integration test - Denied command
         run: |
-          if ./safe-command -- echo "forbidden" 2>&1 | grep -q "Command not allowed"; then
+          if ./safe-command exec -- echo "forbidden" 2>&1 | grep -q "Command not allowed"; then
             echo "✅ Denied command test passed"
           else
             echo "❌ Test failed: Command should have been denied"
@@ -96,5 +100,5 @@ jobs:
 
       - name: Integration test - Wildcard pattern
         run: |
-          ./safe-command -- ls -la > /dev/null
+          ./safe-command exec -- ls -la > /dev/null
           echo "✅ Wildcard pattern test passed"
