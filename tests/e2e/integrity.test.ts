@@ -60,7 +60,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// First run
-				await runSafeCommand(["pwd"], tempDir);
+				await runSafeCommand(["pwd"], tempDir, env);
 
 				// Verify integrity.json contains the config file hash
 				const integrityPath = join(
