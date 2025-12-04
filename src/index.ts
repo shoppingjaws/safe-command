@@ -80,18 +80,8 @@ async function executeWithIntegrityCheck(
 	commandArgs: string[],
 	dryRun: boolean,
 ): Promise<void> {
-	// Verify configuration file integrity (skip if explicitly disabled for testing)
-	const skipIntegrityCheck =
-		process.env.SAFE_COMMAND_NO_INTEGRITY_CHECK === "1";
-	const integrityResult = skipIntegrityCheck
-		? {
-				valid: true,
-				errors: [],
-				changedFiles: [],
-				newFiles: [],
-				isFirstRun: false,
-			}
-		: verifyIntegrity();
+	// Verify configuration file integrity
+	const integrityResult = verifyIntegrity();
 	if (!integrityResult.valid) {
 		console.error("❌ Configuration integrity check failed\n");
 		for (const error of integrityResult.errors) {
@@ -114,13 +104,13 @@ async function executeWithIntegrityCheck(
 
 	// First run - automatically approve and continue
 	if (integrityResult.isFirstRun) {
-		console.log("ℹ️  First run detected - initializing integrity records...");
+		console.error("ℹ️  First run detected - initializing integrity records...");
 		const { updateIntegrityRecords, saveIntegrityRecords } = await import(
 			"./integrity"
 		);
 		const records = updateIntegrityRecords();
 		saveIntegrityRecords(records);
-		console.log("✅ Integrity records initialized\n");
+		console.error("✅ Integrity records initialized\n");
 	}
 
 	// Load configuration

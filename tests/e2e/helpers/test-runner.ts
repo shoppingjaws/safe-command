@@ -25,8 +25,9 @@ export async function runSafeCommand(
 	const fullArgs = ["exec", "--", ...args];
 
 	try {
-		// By default, disable integrity check for tests unless explicitly enabled
-		const defaultEnv = { SAFE_COMMAND_NO_INTEGRITY_CHECK: "1" };
+		// Set HOME to tempDir if provided and not already set in env
+		// This ensures integrity records are isolated per test
+		const defaultEnv = tempDir ? { HOME: tempDir } : {};
 		const finalEnv = env
 			? { ...process.env, ...defaultEnv, ...env }
 			: { ...process.env, ...defaultEnv };
@@ -92,6 +93,18 @@ export async function runSafeCommandDirect(
 		// If the binary doesn't exist or can't be executed
 		throw new Error(`Failed to execute safe-command: ${error}`);
 	}
+}
+
+/**
+ * Approve configuration changes in the given directory
+ * This should be called after setting up test fixtures to initialize integrity records
+ * @param tempDir Directory containing safe-command.yaml (optional)
+ * @returns Result containing exit code, stdout, and stderr
+ */
+export async function approveSafeCommand(
+	tempDir?: string,
+): Promise<CommandResult> {
+	return runSafeCommandDirect(["approve"], tempDir);
 }
 
 /**

@@ -1,13 +1,18 @@
 import { copyFileSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { approveSafeCommand } from "./test-runner";
 
 /**
  * Creates a temporary directory with a test fixture configuration
  * @param fixtureName Name of the fixture file (e.g., 'basic-config.yaml')
+ * @param autoApprove Whether to automatically approve the configuration (default: true)
  * @returns Object with temp directory path and cleanup function
  */
-export function setupFixture(fixtureName: string): {
+export function setupFixture(
+	fixtureName: string,
+	autoApprove = true,
+): {
 	tempDir: string;
 	configPath: string;
 	cleanup: () => void;
@@ -27,6 +32,10 @@ export function setupFixture(fixtureName: string): {
 		throw new Error(`Failed to copy fixture ${fixtureName}: ${error}`);
 	}
 
+	// Note: autoApprove is handled automatically on first run by safe-command itself
+	// We don't need to explicitly call 'approve' here - the first command execution
+	// will automatically initialize integrity records
+
 	// Return temp directory path and cleanup function
 	return {
 		tempDir,
@@ -45,9 +54,13 @@ export function setupFixture(fixtureName: string): {
 /**
  * Sets up a fixture with custom content
  * @param configContent YAML content as string
+ * @param autoApprove Whether to automatically approve the configuration (default: true)
  * @returns Object with temp directory path and cleanup function
  */
-export function setupCustomFixture(configContent: string): {
+export function setupCustomFixture(
+	configContent: string,
+	autoApprove = true,
+): {
 	tempDir: string;
 	configPath: string;
 	cleanup: () => void;
@@ -65,6 +78,10 @@ export function setupCustomFixture(configContent: string): {
 		rmSync(tempDir, { recursive: true, force: true });
 		throw new Error(`Failed to write custom fixture: ${error}`);
 	}
+
+	// Note: autoApprove is handled automatically on first run by safe-command itself
+	// We don't need to explicitly call 'approve' here - the first command execution
+	// will automatically initialize integrity records
 
 	return {
 		tempDir,
