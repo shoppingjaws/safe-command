@@ -59,7 +59,7 @@ commands:
 `);
 
 			try {
-				const env = { HOME: tempDir };
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// First run
 				await runSafeCommand(["pwd"], tempDir, env);
@@ -95,7 +95,7 @@ commands:
 `);
 
 			try {
-				const env = { HOME: tempDir };
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// First run to initialize integrity records
 				await runSafeCommand(["echo", "hello"], tempDir, env);
@@ -132,7 +132,7 @@ commands:
 `);
 
 			try {
-				const env = { HOME: tempDir };
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// Initialize
 				await runSafeCommand(["ls"], tempDir, env);
@@ -170,7 +170,7 @@ commands:
 `);
 
 			try {
-				const env = { HOME: tempDir };
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// Initialize with local config only
 				await runSafeCommand(["echo", "test"], tempDir, env);
@@ -211,7 +211,7 @@ commands:
 `);
 
 			try {
-				const env = { HOME: tempDir };
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// Initialize
 				await runSafeCommand(["echo", "hello"], tempDir, env);
@@ -253,7 +253,7 @@ commands:
 `);
 
 			try {
-				const env = { HOME: tempDir };
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// Initialize
 				await runSafeCommand(["ls"], tempDir, env);
@@ -279,7 +279,7 @@ commands:
 `);
 
 			try {
-				const env = { HOME: tempDir };
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// Initialize
 				await runSafeCommand(["aws", "s3", "ls"], tempDir, env);
@@ -320,7 +320,7 @@ commands:
 `);
 
 			try {
-				const env = { HOME: tempDir };
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// Initialize
 				await runSafeCommand(["kubectl", "get", "pods"], tempDir, env);
