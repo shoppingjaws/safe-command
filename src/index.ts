@@ -6,12 +6,12 @@
  * A proxy tool to safely restrict commands for AI agents.
  */
 
+import { runApprove } from "./approve";
 import { GLOBAL_CONFIG_PATH, getCommandConfig, loadConfig } from "./config";
 import { executeCommand } from "./executor";
 import { initCommand } from "./init";
-import { matchAnyPattern } from "./matcher";
-import { runApprove } from "./approve";
 import { verifyIntegrity } from "./integrity";
+import { matchAnyPattern } from "./matcher";
 
 /**
  * Print error message to stderr
@@ -128,8 +128,17 @@ async function main() {
 	const [command, ...commandArgs] = commandParts;
 
 	// Verify configuration file integrity (skip if explicitly disabled for testing)
-	const skipIntegrityCheck = process.env.SAFE_COMMAND_NO_INTEGRITY_CHECK === "1";
-	const integrityResult = skipIntegrityCheck ? { valid: true, errors: [], changedFiles: [], newFiles: [], isFirstRun: false } : verifyIntegrity();
+	const skipIntegrityCheck =
+		process.env.SAFE_COMMAND_NO_INTEGRITY_CHECK === "1";
+	const integrityResult = skipIntegrityCheck
+		? {
+				valid: true,
+				errors: [],
+				changedFiles: [],
+				newFiles: [],
+				isFirstRun: false,
+			}
+		: verifyIntegrity();
 	if (!integrityResult.valid) {
 		console.error("❌ Configuration integrity check failed\n");
 		for (const error of integrityResult.errors) {
@@ -144,17 +153,18 @@ async function main() {
 			"   This prevents unauthorized command execution by AI agents or",
 		);
 		console.error("   other automated tools.\n");
-		console.error("   Run 'safe-command approve' to review and approve changes.\n");
+		console.error(
+			"   Run 'safe-command approve' to review and approve changes.\n",
+		);
 		process.exit(1);
 	}
 
 	// First run - automatically approve and continue
 	if (integrityResult.isFirstRun) {
 		console.log("ℹ️  First run detected - initializing integrity records...");
-		const {
-			updateIntegrityRecords,
-			saveIntegrityRecords,
-		} = await import("./integrity");
+		const { updateIntegrityRecords, saveIntegrityRecords } = await import(
+			"./integrity"
+		);
 		const records = updateIntegrityRecords();
 		saveIntegrityRecords(records);
 		console.log("✅ Integrity records initialized\n");

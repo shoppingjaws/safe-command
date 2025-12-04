@@ -1,12 +1,12 @@
-import { describe, test, expect, beforeAll } from "bun:test";
+import { beforeAll, describe, expect, test } from "bun:test";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+import { setupCustomFixture } from "./helpers/fixtures";
 import {
+	buildSafeCommand,
 	runSafeCommand,
 	runSafeCommandDirect,
-	buildSafeCommand,
 } from "./helpers/test-runner";
-import { setupCustomFixture } from "./helpers/fixtures";
-import { writeFileSync, mkdirSync, existsSync } from "fs";
-import { join } from "path";
 
 describe("E2E: Configuration integrity checking", () => {
 	// Build the binary once before all tests
@@ -16,7 +16,7 @@ describe("E2E: Configuration integrity checking", () => {
 
 	describe("First run behavior", () => {
 		test("should automatically approve on first run", async () => {
-			const { tempDir, configPath, cleanup } = setupCustomFixture(`
+			const { tempDir, cleanup } = setupCustomFixture(`
 commands:
   echo:
     patterns:
@@ -152,7 +152,11 @@ commands:
 				);
 
 				// Attempt to execute - should be blocked
-				const result = await runSafeCommand(["rm", "-rf", "/test"], tempDir, env);
+				const result = await runSafeCommand(
+					["rm", "-rf", "/test"],
+					tempDir,
+					env,
+				);
 
 				expect(result.exitCode).toBe(1);
 				expect(result.stderr).toContain("integrity check failed");

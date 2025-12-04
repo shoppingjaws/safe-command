@@ -4,10 +4,10 @@
  * Tracks SHA-256 hashes of configuration files to detect unauthorized changes.
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
-import { join, dirname } from "node:path";
+import { dirname, join } from "node:path";
 import { GLOBAL_CONFIG_PATH } from "./config.js";
 
 /**

@@ -7,11 +7,11 @@
 
 import * as readline from "node:readline";
 import {
-	verifyIntegrity,
-	updateIntegrityRecords,
-	saveIntegrityRecords,
 	getAllConfigFiles,
 	loadIntegrityRecords,
+	saveIntegrityRecords,
+	updateIntegrityRecords,
+	verifyIntegrity,
 } from "./integrity.js";
 
 /**
