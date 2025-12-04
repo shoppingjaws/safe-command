@@ -16,17 +16,20 @@ describe("E2E: Configuration integrity checking", () => {
 
 	describe("First run behavior", () => {
 		test("should automatically approve on first run", async () => {
-			const { tempDir, cleanup } = setupCustomFixture(`
+			const { tempDir, cleanup } = setupCustomFixture(
+				`
 commands:
   echo:
     patterns:
       - "hello"
-`);
+`,
+				false,
+			);
 
 			try {
 				// Set HOME to temp directory to isolate integrity.json
 				// Enable integrity check for this test
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// First run should automatically approve
 				const result = await runSafeCommand(["echo", "hello"], tempDir, env);
@@ -51,15 +54,18 @@ commands:
 		});
 
 		test("should create integrity records on first run", async () => {
-			const { tempDir, cleanup } = setupCustomFixture(`
+			const { tempDir, cleanup } = setupCustomFixture(
+				`
 commands:
   pwd:
     patterns:
       - ""
-`);
+`,
+				false,
+			);
 
 			try {
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// First run
 				await runSafeCommand(["pwd"], tempDir, env);
@@ -87,15 +93,18 @@ commands:
 
 	describe("Configuration tampering detection", () => {
 		test("should detect modified configuration file", async () => {
-			const { tempDir, configPath, cleanup } = setupCustomFixture(`
+			const { tempDir, configPath, cleanup } = setupCustomFixture(
+				`
 commands:
   echo:
     patterns:
       - "hello"
-`);
+`,
+				false,
+			);
 
 			try {
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// First run to initialize integrity records
 				await runSafeCommand(["echo", "hello"], tempDir, env);
@@ -124,15 +133,18 @@ commands:
 		});
 
 		test("should prevent execution with tampered config", async () => {
-			const { tempDir, configPath, cleanup } = setupCustomFixture(`
+			const { tempDir, configPath, cleanup } = setupCustomFixture(
+				`
 commands:
   ls:
     patterns:
       - ""
-`);
+`,
+				false,
+			);
 
 			try {
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// Initialize
 				await runSafeCommand(["ls"], tempDir, env);
@@ -166,15 +178,18 @@ commands:
 		});
 
 		test("should detect new configuration file", async () => {
-			const { tempDir, cleanup } = setupCustomFixture(`
+			const { tempDir, cleanup } = setupCustomFixture(
+				`
 commands:
   echo:
     patterns:
       - "test"
-`);
+`,
+				false,
+			);
 
 			try {
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// Initialize with local config only
 				await runSafeCommand(["echo", "test"], tempDir, env);
@@ -207,15 +222,18 @@ commands:
 
 	describe("Approve command", () => {
 		test("should approve configuration changes", async () => {
-			const { tempDir, configPath, cleanup } = setupCustomFixture(`
+			const { tempDir, configPath, cleanup } = setupCustomFixture(
+				`
 commands:
   echo:
     patterns:
       - "hello"
-`);
+`,
+				false,
+			);
 
 			try {
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// Initialize
 				await runSafeCommand(["echo", "hello"], tempDir, env);
@@ -249,15 +267,18 @@ commands:
 		});
 
 		test("should show status of configuration files", async () => {
-			const { tempDir, cleanup } = setupCustomFixture(`
+			const { tempDir, cleanup } = setupCustomFixture(
+				`
 commands:
   ls:
     patterns:
       - ""
-`);
+`,
+				false,
+			);
 
 			try {
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// Initialize
 				await runSafeCommand(["ls"], tempDir, env);
@@ -275,15 +296,18 @@ commands:
 
 	describe("Security guarantees", () => {
 		test("should prevent AI agent from bypassing restrictions", async () => {
-			const { tempDir, configPath, cleanup } = setupCustomFixture(`
+			const { tempDir, configPath, cleanup } = setupCustomFixture(
+				`
 commands:
   aws:
     patterns:
       - "s3 ls"  # Only allow listing
-`);
+`,
+				false,
+			);
 
 			try {
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// Initialize
 				await runSafeCommand(["aws", "s3", "ls"], tempDir, env);
@@ -316,15 +340,18 @@ commands:
 		});
 
 		test("should block execution after any config modification", async () => {
-			const { tempDir, configPath, cleanup } = setupCustomFixture(`
+			const { tempDir, configPath, cleanup } = setupCustomFixture(
+				`
 commands:
   kubectl:
     patterns:
       - "get pods"
-`);
+`,
+				false,
+			);
 
 			try {
-				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
+				const env = { HOME: tempDir };
 
 				// Initialize
 				await runSafeCommand(["kubectl", "get", "pods"], tempDir, env);

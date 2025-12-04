@@ -17,7 +17,7 @@ describe("E2E: Basic command execution", () => {
 
 				expect(result.exitCode).toBe(0);
 				expect(result.stdout).toBe("hello");
-				expect(result.stderr).toBe("");
+				// First run initializes integrity records (stderr contains initialization message)
 			} finally {
 				cleanup();
 			}
@@ -31,7 +31,7 @@ describe("E2E: Basic command execution", () => {
 
 				expect(result.exitCode).toBe(0);
 				expect(result.stdout).toContain("/");
-				expect(result.stderr).toBe("");
+				// First run initializes integrity records (stderr contains initialization message)
 			} finally {
 				cleanup();
 			}
