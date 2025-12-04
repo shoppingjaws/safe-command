@@ -9,11 +9,30 @@ describe("E2E: Basic command execution", () => {
 	});
 
 	describe("Allowed commands", () => {
-		test("should execute allowed 'echo' command", async () => {
+		test("should execute allowed 'echo' command with exec subcommand", async () => {
 			const { tempDir, cleanup } = setupFixture("basic-config.yaml");
 
 			try {
 				const result = await runSafeCommand(["echo", "hello"], tempDir);
+
+				expect(result.exitCode).toBe(0);
+				expect(result.stdout).toBe("hello");
+				expect(result.stderr).toBe("");
+			} finally {
+				cleanup();
+			}
+		});
+
+		test("should execute allowed 'echo' command with legacy format", async () => {
+			const { tempDir, cleanup } = setupFixture("basic-config.yaml");
+
+			try {
+				const result = await runSafeCommand(
+					["echo", "hello"],
+					tempDir,
+					undefined,
+					true,
+				);
 
 				expect(result.exitCode).toBe(0);
 				expect(result.stdout).toBe("hello");

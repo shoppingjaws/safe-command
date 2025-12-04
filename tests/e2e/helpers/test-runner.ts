@@ -12,17 +12,20 @@ export interface CommandResult {
  * @param args Command arguments to pass after '--'
  * @param tempDir Temporary directory containing safe-command.yaml (optional)
  * @param env Environment variables (optional)
+ * @param useLegacyFormat Use legacy 'safe-command -- <cmd>' format instead of 'safe-command exec -- <cmd>' (default: false)
  * @returns Result containing exit code, stdout, and stderr
  */
 export async function runSafeCommand(
 	args: string[],
 	tempDir?: string,
 	env?: Record<string, string>,
+	useLegacyFormat = false,
 ): Promise<CommandResult> {
 	const binaryPath = join(process.cwd(), "safe-command");
 
-	// Build command arguments: safe-command -- <actual command>
-	const fullArgs = ["--", ...args];
+	// Build command arguments: safe-command exec -- <actual command>
+	// or legacy format: safe-command -- <actual command>
+	const fullArgs = useLegacyFormat ? ["--", ...args] : ["exec", "--", ...args];
 
 	try {
 		// By default, disable integrity check for tests unless explicitly enabled
