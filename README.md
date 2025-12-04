@@ -57,7 +57,7 @@ commands:
 ### 3. Run Commands
 
 ```bash
-# Allowed command ✅ (recommended: use 'exec' subcommand)
+# Allowed command ✅
 ./safe-command exec -- aws s3 ls
 
 # Test with dry-run ✅
@@ -67,9 +67,6 @@ commands:
 # Blocked command ❌
 ./safe-command exec -- aws s3 rm s3://bucket/file.txt
 # Error: Command not allowed: aws s3 rm s3://bucket/file.txt
-
-# Legacy format (still supported) ✅
-./safe-command -- aws s3 ls
 ```
 
 ## 📚 Usage
@@ -77,13 +74,10 @@ commands:
 ### Command Syntax
 
 ```bash
-# Recommended: Use 'exec' subcommand (safer for AI agents)
+# Execute commands (only format for AI agents)
 safe-command exec [options] -- <command> [args...]
 
-# Legacy format (still supported)
-safe-command [options] -- <command> [args...]
-
-# Admin commands
+# Admin commands (human use only)
 safe-command init [--force]     # Initialize configuration
 safe-command approve            # Approve configuration changes
 ```
@@ -96,7 +90,7 @@ safe-command approve            # Approve configuration changes
 ### Examples
 
 ```bash
-# AWS CLI commands (recommended: use 'exec')
+# AWS CLI commands
 ./safe-command exec -- aws s3 ls
 ./safe-command exec -- aws ec2 describe-instances --region us-east-1
 ./safe-command exec -- aws sts get-caller-identity
@@ -108,9 +102,6 @@ safe-command approve            # Approve configuration changes
 # Other commands (configure in YAML)
 ./safe-command exec -- kubectl get pods
 ./safe-command exec -- terraform plan
-
-# Legacy format (still works)
-./safe-command -- aws s3 ls
 ```
 
 ### Dry-Run Mode
@@ -330,15 +321,10 @@ This ensures:
 ```bash
 # ❌ Does NOT work
 bun src/index.ts exec -- aws s3 ls
-bun src/index.ts -- aws s3 ls
-
-# ❌ Does NOT work
 ./src/index.ts exec -- aws s3 ls
-./src/index.ts -- aws s3 ls
 
 # ✅ WORKS - Use compiled binary
 ./safe-command exec -- aws s3 ls
-./safe-command -- aws s3 ls  # legacy format
 ```
 
 **Solution**: Always use the compiled binary (`bun run build`).

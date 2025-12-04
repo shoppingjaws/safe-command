@@ -35,12 +35,9 @@ Commands:
                  Updates integrity records to allow execution with
                  the current configuration files
 
-  exec           Execute a command (proxy mode) [RECOMMENDED]
+  exec           Execute a command (proxy mode)
                  Format: safe-command exec [options] -- <command> [args...]
                  This is the ONLY command that should be allowed for AI agents
-
-  --             Execute a command (legacy format, still supported)
-                 Format: safe-command [options] -- <command> [args...]
 
 Options:
   -h, --help     Show this help message
@@ -210,7 +207,7 @@ async function main() {
 		}
 	}
 
-	// Handle exec command (recommended for AI agents)
+	// Handle exec command (required for command execution)
 	if (args[0] === "exec") {
 		// Remove 'exec' from args and process the rest
 		const execArgs = args.slice(1);
@@ -239,41 +236,17 @@ async function main() {
 		const dryRun = options.includes("--dry-run");
 		const [command, ...commandArgs] = commandParts;
 
-		// Continue with execution (common logic extracted below)
+		// Execute command with integrity check
 		await executeWithIntegrityCheck(command, commandArgs, dryRun);
 		return;
 	}
 
-	// Legacy format: safe-command [options] -- <command> [args...]
-	// Find "--" delimiter
-	const delimiterIndex = args.indexOf("--");
-	if (delimiterIndex === -1) {
-		printError('Missing "--" delimiter or unknown command');
-		console.error(
-			"\nUsage: safe-command exec [options] -- <command> [args...]",
-		);
-		console.error("Example: safe-command exec -- kubectl get pods\n");
-		process.exit(1);
-	}
-
-	// Parse options and command
-	const options = args.slice(0, delimiterIndex);
-	const commandParts = args.slice(delimiterIndex + 1);
-
-	// Check for dry-run option
-	const dryRun = options.includes("--dry-run");
-
-	if (commandParts.length === 0) {
-		printError('No command specified after "--"');
-		console.error("\nUsage: safe-command [options] -- <command> [args...]");
-		console.error("Example: safe-command exec -- kubectl get pods\n");
-		process.exit(1);
-	}
-
-	const [command, ...commandArgs] = commandParts;
-
-	// Execute command with integrity check
-	await executeWithIntegrityCheck(command, commandArgs, dryRun);
+	// Unknown command
+	printError(`Unknown command: ${args[0]}`);
+	console.error("\nAvailable commands: init, approve, exec");
+	console.error("\nUsage: safe-command exec [options] -- <command> [args...]");
+	console.error("Example: safe-command exec -- kubectl get pods\n");
+	process.exit(1);
 }
 
 // Run main function
