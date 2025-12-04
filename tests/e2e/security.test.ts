@@ -579,25 +579,23 @@ describe("E2E: Security - Malicious Attack Patterns", () => {
 
 		test("should allow safe AWS read-only commands", async () => {
 			const configContent = `commands:
-  aws:
+  echo:
     patterns:
-      - "* get-*"
-      - "* list-*"
-      - "* describe-*"
+      - "aws * get-*"
+      - "aws * list-*"
+      - "aws * describe-*"
 `;
 			const { tempDir, cleanup } = setupCustomFixture(configContent);
 
 			try {
+				// Use echo to simulate AWS commands without actually running them
 				const result = await runSafeCommand(
-					["aws", "ec2", "describe-instances"],
+					["echo", "aws", "ec2", "describe-instances"],
 					tempDir,
 				);
-				// This should be allowed (assuming aws CLI is installed)
-				// If aws is not installed, it will fail with command not found
-				// but the safe-command should allow it
-				expect(
-					result.exitCode !== 1 || !result.stderr.includes("not allowed"),
-				).toBe(true);
+				// This should be allowed
+				expect(result.exitCode).toBe(0);
+				expect(result.stdout).toContain("aws ec2 describe-instances");
 			} finally {
 				cleanup();
 			}
