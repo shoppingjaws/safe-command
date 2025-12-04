@@ -25,7 +25,8 @@ commands:
 
 			try {
 				// Set HOME to temp directory to isolate integrity.json
-				const env = { HOME: tempDir };
+				// Enable integrity check for this test
+				const env = { HOME: tempDir, SAFE_COMMAND_NO_INTEGRITY_CHECK: "0" };
 
 				// First run should automatically approve
 				const result = await runSafeCommand(["echo", "hello"], tempDir, env);
