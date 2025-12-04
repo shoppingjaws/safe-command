@@ -110,7 +110,7 @@ commands:
 				);
 
 				// Second run should detect the modification and fail
-				const result = await runSafeCommand(["echo", "hello"], tempDir);
+				const result = await runSafeCommand(["echo", "hello"], tempDir, env);
 
 				expect(result.exitCode).toBe(1);
 				expect(result.stderr).toContain("Configuration integrity check failed");
@@ -133,7 +133,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// Initialize
-				await runSafeCommand(["ls"], tempDir);
+				await runSafeCommand(["ls"], tempDir, env);
 
 				// AI agent tampering: add dangerous rm command
 				writeFileSync(
@@ -150,7 +150,7 @@ commands:
 				);
 
 				// Attempt to execute - should be blocked
-				const result = await runSafeCommand(["rm", "-rf", "/test"], tempDir);
+				const result = await runSafeCommand(["rm", "-rf", "/test"], tempDir, env);
 
 				expect(result.exitCode).toBe(1);
 				expect(result.stderr).toContain("integrity check failed");
@@ -171,7 +171,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// Initialize with local config only
-				await runSafeCommand(["echo", "test"], tempDir);
+				await runSafeCommand(["echo", "test"], tempDir, env);
 
 				// Create global config (simulating AI agent adding new config)
 				const globalConfigDir = join(tempDir, ".config", "safe-command");
@@ -188,7 +188,7 @@ commands:
 				);
 
 				// Should detect new file
-				const result = await runSafeCommand(["echo", "test"], tempDir);
+				const result = await runSafeCommand(["echo", "test"], tempDir, env);
 
 				expect(result.exitCode).toBe(1);
 				expect(result.stderr).toContain("New configuration file detected");
@@ -212,7 +212,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// Initialize
-				await runSafeCommand(["echo", "hello"], tempDir);
+				await runSafeCommand(["echo", "hello"], tempDir, env);
 
 				// Modify config
 				writeFileSync(
@@ -227,7 +227,7 @@ commands:
 				);
 
 				// Execution should fail due to modification
-				let result = await runSafeCommand(["echo", "world"], tempDir);
+				let result = await runSafeCommand(["echo", "world"], tempDir, env);
 				expect(result.exitCode).toBe(1);
 
 				// Note: approve command requires interactive input, so we can't test it fully in E2E
@@ -236,7 +236,7 @@ commands:
 				// For now, just verify that the approve command exists
 				result = await runSafeCommandDirect(["approve"], tempDir, env);
 				// Command should run (may exit with 0 or non-0 depending on stdin handling)
-				expect(result.stderr).toContain("safe-command approve");
+				expect(result.stdout).toContain("safe-command approve");
 			} finally {
 				cleanup();
 			}
@@ -254,7 +254,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// Initialize
-				await runSafeCommand(["ls"], tempDir);
+				await runSafeCommand(["ls"], tempDir, env);
 
 				// Run approve to see status
 				const result = await runSafeCommandDirect(["approve"], tempDir, env);
@@ -280,7 +280,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// Initialize
-				await runSafeCommand(["aws", "s3", "ls"], tempDir);
+				await runSafeCommand(["aws", "s3", "ls"], tempDir, env);
 
 				// AI agent attempts to modify config to allow deletion
 				writeFileSync(
@@ -298,6 +298,7 @@ commands:
 				const result = await runSafeCommand(
 					["aws", "s3", "rm", "--recursive", "s3://production"],
 					tempDir,
+					env,
 				);
 
 				expect(result.exitCode).toBe(1);
@@ -320,7 +321,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// Initialize
-				await runSafeCommand(["kubectl", "get", "pods"], tempDir);
+				await runSafeCommand(["kubectl", "get", "pods"], tempDir, env);
 
 				// Even a benign change should require approval
 				writeFileSync(
@@ -338,6 +339,7 @@ commands:
 				const result = await runSafeCommand(
 					["kubectl", "get", "nodes"],
 					tempDir,
+					env,
 				);
 
 				expect(result.exitCode).toBe(1);
