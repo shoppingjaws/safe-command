@@ -28,7 +28,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// First run should automatically approve
-				const result = await runSafeCommand(["echo", "hello"], tempDir);
+				const result = await runSafeCommand(["echo", "hello"], tempDir, env);
 
 				expect(result.exitCode).toBe(0);
 				expect(result.stdout).toContain("hello");
