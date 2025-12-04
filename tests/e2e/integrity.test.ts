@@ -96,7 +96,7 @@ commands:
 				const env = { HOME: tempDir };
 
 				// First run to initialize integrity records
-				await runSafeCommand(["echo", "hello"], tempDir);
+				await runSafeCommand(["echo", "hello"], tempDir, env);
 
 				// Modify the configuration file
 				writeFileSync(
