@@ -11,11 +11,13 @@ export interface CommandResult {
  * Execute safe-command with the given arguments
  * @param args Command arguments to pass after '--'
  * @param tempDir Temporary directory containing safe-command.yaml (optional)
+ * @param env Environment variables (optional)
  * @returns Result containing exit code, stdout, and stderr
  */
 export async function runSafeCommand(
   args: string[],
   tempDir?: string,
+  env?: Record<string, string>,
 ): Promise<CommandResult> {
   const binaryPath = join(process.cwd(), "safe-command");
 
@@ -29,6 +31,7 @@ export async function runSafeCommand(
       stdout: "pipe",
       stderr: "pipe",
       stdin: "ignore",
+      env: env ? { ...process.env, ...env } : undefined,
     });
 
     const stdout = await new Response(proc.stdout).text();
