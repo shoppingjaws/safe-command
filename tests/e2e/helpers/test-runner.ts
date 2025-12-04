@@ -25,13 +25,17 @@ export async function runSafeCommand(
   const fullArgs = ["--", ...args];
 
   try {
+    // By default, disable integrity check for tests unless explicitly enabled
+    const defaultEnv = { SAFE_COMMAND_NO_INTEGRITY_CHECK: "1" };
+    const finalEnv = env ? { ...process.env, ...defaultEnv, ...env } : { ...process.env, ...defaultEnv };
+    
     const proc = spawn({
       cmd: [binaryPath, ...fullArgs],
       cwd: tempDir || process.cwd(),
       stdout: "pipe",
       stderr: "pipe",
       stdin: "ignore",
-      env: env ? { ...process.env, ...env } : undefined,
+      env: finalEnv,
     });
 
     const stdout = await new Response(proc.stdout).text();
