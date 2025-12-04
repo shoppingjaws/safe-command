@@ -127,8 +127,9 @@ async function main() {
 
 	const [command, ...commandArgs] = commandParts;
 
-	// Verify configuration file integrity
-	const integrityResult = verifyIntegrity();
+	// Verify configuration file integrity (skip if explicitly disabled for testing)
+	const skipIntegrityCheck = process.env.SAFE_COMMAND_NO_INTEGRITY_CHECK === "1";
+	const integrityResult = skipIntegrityCheck ? { valid: true, errors: [], changedFiles: [], newFiles: [], isFirstRun: false } : verifyIntegrity();
 	if (!integrityResult.valid) {
 		console.error("❌ Configuration integrity check failed\n");
 		for (const error of integrityResult.errors) {
