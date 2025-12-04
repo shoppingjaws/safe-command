@@ -10,6 +10,8 @@ import { GLOBAL_CONFIG_PATH, getCommandConfig, loadConfig } from "./config";
 import { executeCommand } from "./executor";
 import { initCommand } from "./init";
 import { matchAnyPattern } from "./matcher";
+import { runApprove } from "./approve";
+import { verifyIntegrity } from "./integrity";
 
 /**
  * Print error message to stderr
@@ -29,6 +31,10 @@ Commands:
                  Options:
                    --force  Overwrite existing configuration
 
+  approve        Approve configuration file changes
+                 Updates integrity records to allow execution with
+                 the current configuration files
+
   --             Execute a command (proxy mode)
                  Format: safe-command [options] -- <command> [args...]
 
@@ -39,6 +45,7 @@ Options:
 Examples:
   safe-command init
   safe-command init --force
+  safe-command approve
   safe-command -- aws s3 ls
   safe-command --dry-run -- aws s3 ls
   safe-command -- kubectl get pods
@@ -52,6 +59,11 @@ Configuration:
 
   To create a default global configuration, run:
     safe-command init
+
+Security:
+  safe-command tracks configuration file integrity using SHA-256 hashes.
+  If configuration files are modified, you must run 'safe-command approve'
+  to explicitly approve the changes before commands can be executed.
 `);
 }
 
@@ -72,6 +84,17 @@ async function main() {
 		const force = args.includes("--force");
 		try {
 			initCommand(GLOBAL_CONFIG_PATH, force);
+			process.exit(0);
+		} catch (error) {
+			printError(error instanceof Error ? error.message : String(error));
+			process.exit(1);
+		}
+	}
+
+	// Handle approve command
+	if (args[0] === "approve") {
+		try {
+			await runApprove();
 			process.exit(0);
 		} catch (error) {
 			printError(error instanceof Error ? error.message : String(error));
@@ -103,6 +126,38 @@ async function main() {
 	}
 
 	const [command, ...commandArgs] = commandParts;
+
+	// Verify configuration file integrity
+	const integrityResult = verifyIntegrity();
+	if (!integrityResult.valid) {
+		console.error("❌ Configuration integrity check failed\n");
+		for (const error of integrityResult.errors) {
+			console.error(error);
+			console.error("");
+		}
+		console.error("🔒 Security Notice:");
+		console.error(
+			"   Configuration files have been modified or are not approved.",
+		);
+		console.error(
+			"   This prevents unauthorized command execution by AI agents or",
+		);
+		console.error("   other automated tools.\n");
+		console.error("   Run 'safe-command approve' to review and approve changes.\n");
+		process.exit(1);
+	}
+
+	// First run - automatically approve and continue
+	if (integrityResult.isFirstRun) {
+		console.log("ℹ️  First run detected - initializing integrity records...");
+		const {
+			updateIntegrityRecords,
+			saveIntegrityRecords,
+		} = await import("./integrity");
+		const records = updateIntegrityRecords();
+		saveIntegrityRecords(records);
+		console.log("✅ Integrity records initialized\n");
+	}
 
 	// Load configuration
 	let config: ReturnType<typeof loadConfig>;
