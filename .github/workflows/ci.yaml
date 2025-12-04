@@ -76,6 +76,10 @@ jobs:
                 - "*"
           EOF
 
+      - name: Approve configuration
+        run: |
+          echo "yes" | ./safe-command approve
+
       - name: Integration test - Allowed command
         run: |
           OUTPUT=$(./safe-command -- echo "hello world")
