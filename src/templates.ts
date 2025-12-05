@@ -323,7 +323,7 @@ export const TEMPLATES: Record<TemplateName, Template> = {
  * Get a template by name
  */
 export function getTemplate(name: TemplateName): Template | null {
-	return TEMPLATES[name] || null;
+	return TEMPLATES[name as keyof typeof TEMPLATES] || null;
 }
 
 /**

@@ -67,7 +67,8 @@ export function runTest(command: string, commandArgs: string[]): number {
 		console.log(`    ${command}:`);
 		console.log(`      patterns:`);
 		console.log(`        - "${commandString}"`);
-		if (commandArgs.length >= 2) {
+		// Only suggest wildcards if there are at least 2 arguments that form a subcommand structure
+		if (commandArgs.length >= 2 && commandArgs[1].length > 0) {
 			console.log(`        # or use wildcards:`);
 			console.log(`        - "${commandArgs[0]} ${commandArgs[1]}*"`);
 		}

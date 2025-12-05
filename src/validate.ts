@@ -51,6 +51,15 @@ function validateConfigStructure(config: SafeCommandConfig): ValidationIssue[] {
 
 		// Check for overly permissive patterns
 		for (const pattern of patterns) {
+			// Check for empty pattern strings first
+			if (pattern.trim().length === 0) {
+				issues.push({
+					type: "error",
+					message: `Command '${commandName}' has empty pattern.`,
+				});
+				continue;
+			}
+
 			// Check for single wildcard
 			if (pattern === "*") {
 				issues.push({
@@ -111,14 +120,6 @@ function validateConfigStructure(config: SafeCommandConfig): ValidationIssue[] {
 						message: `terraform pattern '${pattern}' allows destroy operations - use with extreme caution.`,
 					});
 				}
-			}
-
-			// Check for empty patterns
-			if (pattern.trim().length === 0) {
-				issues.push({
-					type: "error",
-					message: `Command '${commandName}' has empty pattern.`,
-				});
 			}
 		}
 	}

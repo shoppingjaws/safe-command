@@ -56,17 +56,51 @@ commands:
       # - "* terminate-*"  # リソースの終了
 
 # ============================================
-# 将来の拡張 (Phase 2+)
+# Multi-Command Support (Phase 2+)
 # ============================================
-# 他のコマンドも追加可能です
+# safe-command supports multiple command-line tools.
+# Use 'safe-command init --template <name>' for quick setup.
+#
+# Available templates:
+#   - aws-readonly: AWS read-only operations
+#   - aws-dev: AWS development operations
+#   - kubernetes: Kubernetes operations
+#   - terraform: Terraform operations
+#   - docker: Docker operations
+#   - multi-command: Multiple tools combined
+#
+# Example configurations:
 #
 # kubectl:
 #   patterns:
 #     - "get *"
 #     - "describe *"
+#     - "logs *"
 #
 # terraform:
 #   patterns:
 #     - "plan*"
 #     - "show*"
 #     - "state list*"
+#
+# docker:
+#   patterns:
+#     - "ps*"
+#     - "images*"
+#     - "logs *"
+#
+# gh:
+#   patterns:
+#     - "repo view*"
+#     - "issue list*"
+#
+# gcloud:
+#   patterns:
+#     - "* list*"
+#     - "* describe*"
+#
+# git:
+#   patterns:
+#     - "status*"
+#     - "log*"
+#     - "diff*"
