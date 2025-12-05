@@ -1,0 +1,65 @@
+# safe-command Configuration
+# Template: Multi-Command
+#
+# This configuration includes multiple commonly used command-line tools.
+# Focuses on read-only and safe operations across all tools.
+
+commands:
+  # AWS CLI
+  aws:
+    patterns:
+      - "* list-*"
+      - "* get-*"
+      - "* describe-*"
+      - "s3 ls*"
+      - "sts get-caller-identity"
+
+  # Kubernetes
+  kubectl:
+    patterns:
+      - "get *"
+      - "describe *"
+      - "logs *"
+      - "top *"
+
+  # Terraform
+  terraform:
+    patterns:
+      - "plan*"
+      - "show*"
+      - "state list*"
+      - "output*"
+      - "validate*"
+
+  # Docker
+  docker:
+    patterns:
+      - "ps*"
+      - "images*"
+      - "logs *"
+      - "inspect *"
+
+  # GitHub CLI
+  gh:
+    patterns:
+      - "repo view*"
+      - "issue list*"
+      - "pr list*"
+      - "status*"
+
+  # Google Cloud CLI
+  gcloud:
+    patterns:
+      - "* list*"
+      - "* describe*"
+      - "config *"
+      - "auth list*"
+
+  # Git (for basic inspection)
+  git:
+    patterns:
+      - "status*"
+      - "log*"
+      - "show*"
+      - "diff*"
+      - "branch*"

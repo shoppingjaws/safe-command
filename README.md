@@ -21,6 +21,9 @@ AI coding assistants are powerful, but giving them unrestricted command executio
 - ✅ **Zero runtime overhead**: Compiled to a single binary
 - ✅ **Transparent**: Preserves stdout/stderr and exit codes
 - ✅ **Dry-run mode**: Test commands without executing them
+- ✅ **Configuration templates**: Quick start with pre-built templates for AWS, Kubernetes, Terraform, Docker, and more
+- ✅ **Pattern validation**: Validate configurations and check for security issues
+- ✅ **Pattern testing**: Test if commands would be allowed without execution
 
 ## 🚀 Quick Start
 
@@ -78,50 +81,123 @@ commands:
 safe-command exec [options] -- <command> [args...]
 
 # Admin commands (human use only)
-safe-command init [--force]     # Initialize configuration
-safe-command approve            # Approve configuration changes
+safe-command init [--force] [--template <name>]  # Initialize configuration
+safe-command approve                             # Approve configuration changes
+safe-command validate                            # Validate configuration
+safe-command test -- <command> [args...]         # Test pattern matching
+```
+
+### Commands
+
+#### `init` - Initialize Configuration
+
+Create a new configuration file with optional templates:
+
+```bash
+# Initialize with default template
+safe-command init
+
+# Initialize with specific template
+safe-command init --template kubernetes
+
+# List available templates
+safe-command init --list-templates
+
+# Force overwrite existing config
+safe-command init --force --template aws-readonly
+```
+
+**Available Templates:**
+- `aws-readonly` - AWS read-only operations (safest for AI agents)
+- `aws-dev` - AWS development operations (includes some write operations)
+- `kubernetes` - Kubernetes operations (read-only focus)
+- `terraform` - Terraform operations (plan and inspection)
+- `docker` - Docker operations (inspection and management)
+- `multi-command` - Multiple tools (AWS, kubectl, terraform, docker, gh, gcloud, git)
+
+#### `validate` - Validate Configuration
+
+Check your configuration for syntax errors and potential security issues:
+
+```bash
+safe-command validate
+```
+
+This will:
+- ✅ Verify YAML syntax
+- ⚠️ Warn about overly permissive patterns
+- 🚨 Flag dangerous operations (delete, terminate, etc.)
+- 📊 Show pattern counts and configured commands
+
+#### `test` - Test Pattern Matching
+
+Test if a command would be allowed without executing it:
+
+```bash
+# Test if a command matches any pattern
+safe-command test -- aws s3 ls
+# ✅ ALLOWED: aws s3 ls
+#    Matched pattern: "s3 ls*"
+
+# Test a command that would be denied
+safe-command test -- aws s3 rm s3://bucket/file.txt
+# ❌ DENIED: aws s3 rm s3://bucket/file.txt
+#    No matching pattern found
+```
+
+This is safer than `--dry-run` because it never attempts to execute the command.
+
+#### `exec` - Execute Commands
+
+Execute allowed commands (the only command AI agents should use):
+
+```bash
+# Execute command
+safe-command exec -- aws s3 ls
+
+# Dry-run mode (shows what would execute without running)
+safe-command exec --dry-run -- aws s3 ls
+```
+
+#### `approve` - Approve Configuration Changes
+
+After modifying configuration files, you must approve the changes:
+
+```bash
+safe-command approve
 ```
 
 ### Options
 
-- `--dry-run`: Show what command would be executed without running it
+- `--dry-run`: Show what command would be executed without running it (exec only)
+- `--force`: Force overwrite existing configuration (init only)
+- `--template <name>`: Use a specific template (init only)
+- `--list-templates`: List available templates (init only)
 - `-h, --help`: Show help message
 
 ### Examples
 
 ```bash
-# AWS CLI commands
+# Initialize with Kubernetes template
+./safe-command init --template kubernetes
+
+# Validate your configuration
+./safe-command validate
+
+# Test if a command would be allowed
+./safe-command test -- kubectl get pods
+
+# Execute allowed commands
+./safe-command exec -- kubectl get pods
 ./safe-command exec -- aws s3 ls
-./safe-command exec -- aws ec2 describe-instances --region us-east-1
-./safe-command exec -- aws sts get-caller-identity
+./safe-command exec -- terraform plan
 
 # Dry-run mode (test without executing)
 ./safe-command exec --dry-run -- aws s3 ls
 # Output: [DRY RUN] Would execute: aws s3 ls
 
-# Other commands (configure in YAML)
-./safe-command exec -- kubectl get pods
-./safe-command exec -- terraform plan
-```
-
-### Dry-Run Mode
-
-Use the `--dry-run` flag to test commands without actually executing them. This is useful for:
-
-- **Testing configuration patterns**: Verify if a command would be allowed or blocked
-- **Debugging**: See what command would be executed
-- **Safe testing**: Test potentially dangerous commands without risk
-- **Configuration development**: Iterate on patterns without side effects
-
-```bash
-# Test if a command is allowed (using exec subcommand)
-./safe-command exec --dry-run -- aws s3 rm s3://bucket/file.txt
-
-# If the command is blocked, you'll see:
-# Error: Command not allowed: aws s3 rm s3://bucket/file.txt
-
-# If the command is allowed, you'll see:
-# [DRY RUN] Would execute: aws s3 rm s3://bucket/file.txt
+# Approve configuration changes
+./safe-command approve
 ```
 
 ### Configuration
@@ -131,10 +207,26 @@ Configuration files are searched in the following order:
 1. `./safe-command.yaml` (project-specific)
 2. `~/.config/safe-command/safe-command.yaml` (global)
 
+#### Quick Start with Templates
+
+The easiest way to get started is using a template:
+
+```bash
+# For AWS (read-only, safest)
+safe-command init --template aws-readonly
+
+# For Kubernetes
+safe-command init --template kubernetes
+
+# For multiple tools
+safe-command init --template multi-command
+```
+
 #### Configuration Example
 
 ```yaml
 commands:
+  # AWS CLI
   aws:
     patterns:
       # Wildcard patterns
@@ -151,16 +243,46 @@ commands:
       # - "s3 cp*"
       # - "s3 sync*"
 
+  # Kubernetes
   kubectl:
     patterns:
       - "get *"
       - "describe *"
+      - "logs *"
 
+  # Terraform
   terraform:
     patterns:
       - "plan*"
       - "show*"
       - "state list*"
+
+  # Docker
+  docker:
+    patterns:
+      - "ps*"
+      - "images*"
+      - "logs *"
+
+  # GitHub CLI
+  gh:
+    patterns:
+      - "repo view*"
+      - "issue list*"
+      - "pr list*"
+
+  # Google Cloud
+  gcloud:
+    patterns:
+      - "* list*"
+      - "* describe*"
+
+  # Git
+  git:
+    patterns:
+      - "status*"
+      - "log*"
+      - "diff*"
 ```
 
 ### Pattern Matching Rules
