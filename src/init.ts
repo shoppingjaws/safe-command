@@ -6,6 +6,7 @@
 
 import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
+import { getTemplate, listTemplates, type TemplateName } from "./templates";
 
 /**
  * Default configuration template
@@ -90,15 +91,38 @@ commands:
  *
  * @param configPath - Path to the configuration file
  * @param force - Force overwrite if file already exists
+ * @param templateName - Optional template name to use
  * @throws Error if configuration already exists and force is false
  */
-export function initCommand(configPath: string, force: boolean): void {
+export function initCommand(
+	configPath: string,
+	force: boolean,
+	templateName?: string,
+): void {
 	// Check if file already exists
 	if (existsSync(configPath) && !force) {
 		throw new Error(
 			`Configuration file already exists: ${configPath}\n` +
 				`Use --force to overwrite the existing configuration.`,
 		);
+	}
+
+	// Get configuration content
+	let configContent = DEFAULT_CONFIG;
+	let templateDescription = "default";
+
+	if (templateName) {
+		const template = getTemplate(templateName as TemplateName);
+		if (!template) {
+			throw new Error(
+				`Unknown template: ${templateName}\n\n` +
+					`Available templates:\n${listTemplates()
+						.map((t) => `  - ${t.name}: ${t.description}`)
+						.join("\n")}`,
+			);
+		}
+		configContent = template.content;
+		templateDescription = template.name;
 	}
 
 	// Create directory if it doesn't exist
@@ -108,16 +132,33 @@ export function initCommand(configPath: string, force: boolean): void {
 		console.log(`Created directory: ${configDir}`);
 	}
 
-	// Write default configuration
-	writeFileSync(configPath, DEFAULT_CONFIG, "utf-8");
+	// Write configuration
+	writeFileSync(configPath, configContent, "utf-8");
 
 	if (force && existsSync(configPath)) {
-		console.log(`Configuration file overwritten: ${configPath}`);
+		console.log(
+			`Configuration file overwritten: ${configPath} (template: ${templateDescription})`,
+		);
 	} else {
-		console.log(`Configuration file created: ${configPath}`);
+		console.log(
+			`Configuration file created: ${configPath} (template: ${templateDescription})`,
+		);
 	}
 
-	console.log("\nGlobal configuration has been initialized successfully!");
-	console.log("\nYou can now use safe-command with the default configuration.");
+	console.log("\nConfiguration has been initialized successfully!");
+	console.log("\nYou can now use safe-command with this configuration.");
 	console.log("To customize the configuration, edit the file at:", configPath);
+}
+
+/**
+ * List available templates
+ */
+export function listAvailableTemplates(): void {
+	console.log("Available templates:\n");
+	for (const template of listTemplates()) {
+		console.log(`  ${template.name}`);
+		console.log(`    ${template.description}\n`);
+	}
+	console.log("Usage: safe-command init --template <template-name>");
+	console.log("Example: safe-command init --template kubernetes");
 }

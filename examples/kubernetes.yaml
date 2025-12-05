@@ -1,0 +1,32 @@
+# safe-command Configuration
+# Template: Kubernetes
+#
+# This configuration allows safe Kubernetes operations.
+# Focuses on read-only and non-destructive operations.
+
+commands:
+  kubectl:
+    patterns:
+      # Read operations
+      - "get *"         # Get resources
+      - "describe *"    # Describe resources
+      - "logs *"        # View logs
+      - "top *"         # Resource usage
+      - "explain *"     # Explain resource types
+
+      # Configuration operations
+      - "config *"      # Manage kubeconfig
+
+      # Non-destructive operations
+      - "diff *"        # Show differences
+      - "api-resources*"  # List API resources
+      - "api-versions*"   # List API versions
+      - "cluster-info*"   # Display cluster info
+      - "version*"        # Display version
+
+      # Potentially destructive operations (commented out by default)
+      # - "apply *"     # Apply configuration
+      # - "create *"    # Create resources
+      # - "delete *"    # Delete resources
+      # - "scale *"     # Scale resources
+      # - "rollout *"   # Manage rollouts

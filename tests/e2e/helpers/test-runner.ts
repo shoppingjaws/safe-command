@@ -57,13 +57,13 @@ export async function runSafeCommand(
 }
 
 /**
- * Execute safe-command with direct arguments (for subcommands like 'init')
+ * Execute safe-command with direct arguments (for subcommands like 'init', 'validate', 'test')
  * @param args Command arguments (e.g., ['init', '--force'])
  * @param tempDir Temporary directory (optional)
  * @param env Environment variables (optional)
  * @returns Result containing exit code, stdout, and stderr
  */
-export async function runSafeCommandDirect(
+export async function runCommand(
 	args: string[],
 	tempDir?: string,
 	env?: Record<string, string>,
@@ -71,13 +71,20 @@ export async function runSafeCommandDirect(
 	const binaryPath = join(process.cwd(), "safe-command");
 
 	try {
+		// Set HOME to tempDir if provided and not already set in env
+		// This ensures integrity records are isolated per test
+		const defaultEnv = tempDir ? { HOME: tempDir } : {};
+		const finalEnv = env
+			? { ...process.env, ...defaultEnv, ...env }
+			: { ...process.env, ...defaultEnv };
+
 		const proc = spawn({
 			cmd: [binaryPath, ...args],
 			cwd: tempDir || process.cwd(),
 			stdout: "pipe",
 			stderr: "pipe",
 			stdin: "ignore",
-			env: { ...process.env, ...env },
+			env: finalEnv,
 		});
 
 		const stdout = await new Response(proc.stdout).text();
@@ -93,6 +100,22 @@ export async function runSafeCommandDirect(
 		// If the binary doesn't exist or can't be executed
 		throw new Error(`Failed to execute safe-command: ${error}`);
 	}
+}
+
+/**
+ * @deprecated Use runCommand instead
+ * Execute safe-command with direct arguments (for subcommands like 'init')
+ * @param args Command arguments (e.g., ['init', '--force'])
+ * @param tempDir Temporary directory (optional)
+ * @param env Environment variables (optional)
+ * @returns Result containing exit code, stdout, and stderr
+ */
+export async function runSafeCommandDirect(
+	args: string[],
+	tempDir?: string,
+	env?: Record<string, string>,
+): Promise<CommandResult> {
+	return runCommand(args, tempDir, env);
 }
 
 /**

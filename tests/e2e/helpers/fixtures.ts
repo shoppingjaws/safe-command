@@ -15,6 +15,7 @@ export function setupFixture(
 ): {
 	tempDir: string;
 	configPath: string;
+	writeConfig: (content: string) => void;
 	cleanup: () => void;
 } {
 	// Create a temporary directory
@@ -36,10 +37,16 @@ export function setupFixture(
 	// We don't need to explicitly call 'approve' here - the first command execution
 	// will automatically initialize integrity records
 
+	// Helper function to write new config content
+	const writeConfig = (content: string) => {
+		Bun.write(configPath, content);
+	};
+
 	// Return temp directory path and cleanup function
 	return {
 		tempDir,
 		configPath,
+		writeConfig,
 		cleanup: () => {
 			try {
 				rmSync(tempDir, { recursive: true, force: true });
@@ -63,6 +70,7 @@ export function setupCustomFixture(
 ): {
 	tempDir: string;
 	configPath: string;
+	writeConfig: (content: string) => void;
 	cleanup: () => void;
 } {
 	// Create a temporary directory
@@ -83,9 +91,15 @@ export function setupCustomFixture(
 	// We don't need to explicitly call 'approve' here - the first command execution
 	// will automatically initialize integrity records
 
+	// Helper function to write new config content
+	const writeConfig = (content: string) => {
+		Bun.write(configPath, content);
+	};
+
 	return {
 		tempDir,
 		configPath,
+		writeConfig,
 		cleanup: () => {
 			try {
 				rmSync(tempDir, { recursive: true, force: true });

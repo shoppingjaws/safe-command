@@ -9,9 +9,11 @@
 import { runApprove } from "./approve";
 import { GLOBAL_CONFIG_PATH, getCommandConfig, loadConfig } from "./config";
 import { executeCommand } from "./executor";
-import { initCommand } from "./init";
+import { initCommand, listAvailableTemplates } from "./init";
 import { verifyIntegrity } from "./integrity";
 import { matchAnyPattern } from "./matcher";
+import { runTest } from "./test";
+import { runValidate } from "./validate";
 
 /**
  * Print error message to stderr
@@ -29,11 +31,20 @@ function printUsage(): void {
 Commands:
   init           Initialize global configuration file
                  Options:
-                   --force  Overwrite existing configuration
+                   --force     Overwrite existing configuration
+                   --template  Use a specific template (see 'init --list-templates')
+                   --list-templates  List available templates
 
   approve        Approve configuration file changes
                  Updates integrity records to allow execution with
                  the current configuration files
+
+  validate       Validate configuration file syntax and patterns
+                 Checks for common issues and security concerns
+
+  test           Test if a command would be allowed without executing it
+                 Format: safe-command test -- <command> [args...]
+                 Example: safe-command test -- aws s3 ls
 
   exec           Execute a command (proxy mode)
                  Format: safe-command exec [options] -- <command> [args...]
@@ -41,12 +52,32 @@ Commands:
 
 Options:
   -h, --help     Show this help message
-  --dry-run      Show what command would be executed without running it
+  --dry-run      Show what command would be executed without running it (exec only)
 
 Examples:
+  # Initialize with default template
   safe-command init
+
+  # Initialize with specific template
+  safe-command init --template kubernetes
+
+  # List available templates
+  safe-command init --list-templates
+
+  # Force overwrite existing config
   safe-command init --force
+
+  # Validate configuration
+  safe-command validate
+
+  # Test if a command would be allowed
+  safe-command test -- aws s3 ls
+  safe-command test -- kubectl get pods
+
+  # Approve configuration changes
   safe-command approve
+
+  # Execute commands
   safe-command exec -- aws s3 ls
   safe-command exec --dry-run -- aws s3 ls
   safe-command exec -- kubectl get pods
@@ -176,9 +207,23 @@ async function main() {
 
 	// Handle init command
 	if (args[0] === "init") {
+		// Check for --list-templates flag
+		if (args.includes("--list-templates")) {
+			listAvailableTemplates();
+			process.exit(0);
+		}
+
 		const force = args.includes("--force");
+
+		// Check for --template flag
+		let templateName: string | undefined;
+		const templateIndex = args.indexOf("--template");
+		if (templateIndex !== -1 && templateIndex + 1 < args.length) {
+			templateName = args[templateIndex + 1];
+		}
+
 		try {
-			initCommand(GLOBAL_CONFIG_PATH, force);
+			initCommand(GLOBAL_CONFIG_PATH, force, templateName);
 			process.exit(0);
 		} catch (error) {
 			printError(error instanceof Error ? error.message : String(error));
@@ -195,6 +240,38 @@ async function main() {
 			printError(error instanceof Error ? error.message : String(error));
 			process.exit(1);
 		}
+	}
+
+	// Handle validate command
+	if (args[0] === "validate") {
+		const exitCode = runValidate();
+		process.exit(exitCode);
+	}
+
+	// Handle test command
+	if (args[0] === "test") {
+		const testArgs = args.slice(1);
+		const delimiterIndex = testArgs.indexOf("--");
+
+		if (delimiterIndex === -1) {
+			printError('Missing "--" delimiter');
+			console.error("\nUsage: safe-command test -- <command> [args...]");
+			console.error("Example: safe-command test -- aws s3 ls\n");
+			process.exit(1);
+		}
+
+		const commandParts = testArgs.slice(delimiterIndex + 1);
+
+		if (commandParts.length === 0) {
+			printError('No command specified after "--"');
+			console.error("\nUsage: safe-command test -- <command> [args...]");
+			console.error("Example: safe-command test -- aws s3 ls\n");
+			process.exit(1);
+		}
+
+		const [command, ...commandArgs] = commandParts;
+		const exitCode = runTest(command, commandArgs);
+		process.exit(exitCode);
 	}
 
 	// Handle exec command (required for command execution)
@@ -233,9 +310,8 @@ async function main() {
 
 	// Unknown command
 	printError(`Unknown command: ${args[0]}`);
-	console.error("\nAvailable commands: init, approve, exec");
-	console.error("\nUsage: safe-command exec [options] -- <command> [args...]");
-	console.error("Example: safe-command exec -- kubectl get pods\n");
+	console.error("\nAvailable commands: init, approve, validate, test, exec");
+	console.error("\nFor help, run: safe-command --help\n");
 	process.exit(1);
 }
 
